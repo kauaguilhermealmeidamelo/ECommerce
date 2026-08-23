@@ -1,0 +1,15 @@
+# Este arquivo vai na RAIZ do projeto (fora da pasta public/), não dentro dela.
+# Em hospedagem compartilhada às vezes o document root aponta pra raiz em vez de /public —
+# isso aqui é uma segunda camada de proteção pro caso disso acontecer por engano.
+
+# Nunca servir .env, mesmo que alguém acesse a URL direto
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Desabilita listagem de diretório (evita expor estrutura de pastas)
+Options -Indexes
+
+# Bloqueia acesso direto a pastas internas do Laravel
+RedirectMatch 403 ^/(app|bootstrap|config|database|routes|storage|vendor)/.*$

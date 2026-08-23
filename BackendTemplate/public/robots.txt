@@ -1,0 +1,14 @@
+# Bloqueia a indexação de tudo que não é catálogo público.
+# O objetivo do robots.txt aqui não é "esconder" (ele é público e qualquer um pode ler),
+# é impedir que buscadores indexem e exponham em resultados de busca páginas
+# que não deveriam aparecer no Google — painel admin, carrinho, checkout, API crua.
+
+User-agent: *
+Disallow: /admin
+Disallow: /api/
+Disallow: /carrinho
+Disallow: /checkout
+Disallow: /pedido/
+Disallow: /storage/
+
+Sitemap: https://SEU-DOMINIO/sitemap.xml
