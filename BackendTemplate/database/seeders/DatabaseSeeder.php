@@ -2,24 +2,22 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
+     *
+     * Este projeto nao usa o model User padrao do Laravel (usa Cliente e
+     * Administrador -- ver app/Models). Pra configurar uma loja nova com
+     * dados iniciais (nome, cor, categorias, primeiro admin), use o
+     * assistente interativo em vez deste seeder:
+     *
+     *   php artisan loja:configurar
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        //
     }
 }

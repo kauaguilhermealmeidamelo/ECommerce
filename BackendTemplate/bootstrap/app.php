@@ -14,19 +14,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Sanctum: necessário para autenticação via SPA (cookie) além do token de API.
         $middleware->statefulApi();
 
-        // Aplica os cabeçalhos de segurança (X-Frame-Options, HSTS, etc.) em toda resposta da API.
         $middleware->api(append: [
             CabecalhosSeguranca::class,
         ]);
 
-        // Alias usado nas rotas /admin/* em routes/api.php — bloqueia token de cliente comum.
         $middleware->alias([
             'admin.token' => GarantirTokenAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->shouldRenderJsonWhen(function ($request, $e) {
+            return $request->is('api/*') || $request->expectsJson();
+        });
     })->create();
