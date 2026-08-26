@@ -52,6 +52,9 @@ const erro = ref(null)
 const canvasLinha = ref(null)
 const canvasCategorias = ref(null)
 
+let chartLinha = null
+let chartCategorias = null
+
 const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
 const calcularVariacao = (atual, anterior) => (anterior ? ((atual - anterior) / anterior) * 100 : null)
 
@@ -66,19 +69,34 @@ async function carregar() {
     ])
     dados.value = data.data
     visitas.value = dataVisitas.data
-
-    await nextTick()
-    montarGraficoLinha()
-    montarGraficoCategorias()
   } catch (e) {
     erro.value = 'Não foi possível carregar o dashboard.'
   } finally {
+    // Importante: só desligamos o "Carregando..." aqui, ANTES de tentar
+    // montar os gráficos. O bloco com os <canvas> só existe no DOM depois
+    // que carregando vira false (v-else-if="dados") — se a gente montar
+    // os gráficos antes disso, o Chart.js recebe um <canvas> que ainda
+    // não foi renderizado e quebra com "can't acquire context from the
+    // given item".
     carregando.value = false
+  }
+
+  if (dados.value) {
+    await nextTick()
+    montarGraficoLinha()
+    montarGraficoCategorias()
   }
 }
 
 function montarGraficoLinha() {
-  new Chart(canvasLinha.value, {
+  if (!canvasLinha.value) return
+
+  // Evita acumular instâncias de Chart.js se o dashboard for recarregado
+  // (ex: usuário navega pra outra tela e volta) — sem isso, o Chart.js
+  // reclama de já existir um gráfico no mesmo canvas.
+  chartLinha?.destroy()
+
+  chartLinha = new Chart(canvasLinha.value, {
     type: 'line',
     data: {
       labels: dados.value.serie_mensal.map((m) => m.mes),
@@ -96,7 +114,11 @@ function montarGraficoLinha() {
 }
 
 function montarGraficoCategorias() {
-  new Chart(canvasCategorias.value, {
+  if (!canvasCategorias.value) return
+
+  chartCategorias?.destroy()
+
+  chartCategorias = new Chart(canvasCategorias.value, {
     type: 'bar',
     data: {
       labels: dados.value.categorias_mais_vendidas.map((c) => c.categoria),

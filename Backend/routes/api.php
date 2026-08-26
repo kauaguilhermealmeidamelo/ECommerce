@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CarrinhoController;
+use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ClienteController;
 use App\Http\Controllers\Api\ConfiguracaoLojaController;
@@ -48,7 +49,16 @@ Route::post('/webhooks/mercadopago', [WebhookMercadoPagoController::class, 'proc
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    // index/show precisam ser registrados aqui também: a listagem pública
+    // em /api/produtos não deve mostrar produtos inativos (ativo=false),
+    // mas o painel admin precisa ver todos os produtos cadastrados.
+    Route::get('/produtos', [ProdutoController::class, 'index']);
+    Route::get('/produtos/{produto}', [ProdutoController::class, 'show']);
     Route::apiResource('produtos', ProdutoController::class)->except(['index', 'show']);
+
+    // Necessário para o <select> de categoria no formulário de produto.
+    Route::get('/categorias', [CategoriaController::class, 'index']);
+
     Route::get('/pedidos', [PedidoController::class, 'index']);
     Route::get('/pedidos/{pedido}', [PedidoController::class, 'show']);
 

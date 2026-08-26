@@ -5,14 +5,20 @@
         <h1 class="font-display pagina__titulo">Produtos</h1>
         <p class="pagina__subtitulo">Peças cadastradas na sua loja.</p>
       </div>
-      <button class="btn btn--primario">+ Novo</button>
+      <button class="btn btn--primario" @click="router.push({ name: 'produto-novo' })">+ Novo</button>
     </div>
 
     <div v-if="carregando">Carregando...</div>
     <div v-else-if="erro" class="pagina__erro">{{ erro }}</div>
+    <div v-else-if="produtos.length === 0" class="vazio">Nenhum produto cadastrado ainda.</div>
 
     <ul v-else class="lista">
-      <li v-for="produto in produtos" :key="produto.id" class="item">
+      <li
+        v-for="produto in produtos"
+        :key="produto.id"
+        class="item"
+        @click="router.push({ name: 'produto-editar', params: { id: produto.id } })"
+      >
         <img v-if="produto.imagem_url" :src="produto.imagem_url" class="item__imagem" alt="" />
         <div v-else class="item__imagem item__imagem--vazia">🏷️</div>
 
@@ -34,7 +40,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/services/api'
+
+const router = useRouter()
 
 const produtos = ref([])
 const carregando = ref(true)
@@ -59,7 +68,8 @@ onMounted(carregar)
 <style scoped>
 .cabecalho { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
 .lista { list-style: none; padding: 0; margin: 0; }
-.item { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-bottom: 1px solid var(--line); }
+.item { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+.item:hover { background: #fafafa; }
 .item__imagem { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--icon-bg); }
 .item__imagem--vazia { display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
 .item__info { flex: 1; display: flex; flex-direction: column; gap: .15rem; }
@@ -68,4 +78,5 @@ onMounted(carregar)
 .item__estoque { font-size: .78rem; color: var(--ink-soft); }
 .item__estoque--baixo { color: var(--danger); font-weight: 600; }
 .pagina__erro { color: var(--danger); }
+.vazio { color: var(--ink-soft); text-align: center; padding: 2rem 0; }
 </style>

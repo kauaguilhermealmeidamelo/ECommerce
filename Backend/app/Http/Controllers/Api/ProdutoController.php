@@ -29,6 +29,7 @@ class ProdutoController extends Controller
             'preco' => ['required', 'numeric', 'min:0'],
             'categoria_id' => ['required', 'exists:categorias,id'],
             'estoque' => ['nullable', 'integer', 'min:0'],
+            'descricao' => ['nullable', 'string'],
         ]);
 
         return response()->json(['data' => Produto::create($dados)], 201);
@@ -36,7 +37,19 @@ class ProdutoController extends Controller
 
     public function update(Request $request, Produto $produto): JsonResponse
     {
-        $produto->update($request->all());
+        // Antes: $produto->update($request->all()) — sem validação, sem
+        // checagem de tipo/existência. Alinhado com o store() para que a
+        // tela de edição não quebre com dados inválidos e para impedir
+        // salvar uma categoria_id inexistente, preço negativo, etc.
+        $dados = $request->validate([
+            'nome' => ['sometimes', 'required', 'string', 'max:255'],
+            'preco' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'categoria_id' => ['sometimes', 'required', 'exists:categorias,id'],
+            'estoque' => ['nullable', 'integer', 'min:0'],
+            'descricao' => ['nullable', 'string'],
+        ]);
+
+        $produto->update($dados);
 
         return response()->json(['data' => $produto]);
     }

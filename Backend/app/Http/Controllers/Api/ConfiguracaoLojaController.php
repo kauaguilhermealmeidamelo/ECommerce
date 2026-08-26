@@ -3,26 +3,29 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\ConfiguracaoLojaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ConfiguracaoLojaController extends Controller
 {
+    public function __construct(private readonly ConfiguracaoLojaService $configuracaoLojaService)
+    {
+    }
+
     public function mostrar(): JsonResponse
     {
-        // Retorna as configurações da loja (ou um array vazio/padrão)
-        return response()->json([
-            'sucesso' => true,
-            'dados' => []
-        ]);
+        return response()->json(['data' => $this->configuracaoLojaService->obter()]);
     }
 
     public function atualizar(Request $request): JsonResponse
     {
-        // Lógica para atualizar as configurações
-        return response()->json([
-            'sucesso' => true,
-            'mensagem' => 'Configurações atualizadas com sucesso!'
+        $dados = $request->validate([
+            'produto_expira_apos_venda' => ['required', 'boolean'],
         ]);
+
+        $config = $this->configuracaoLojaService->atualizar($dados);
+
+        return response()->json(['data' => $config]);
     }
 }
