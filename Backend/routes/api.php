@@ -25,7 +25,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::get('/produtos', [ProdutoController::class, 'index']);
+Route::get('/produtos/achadinhos', [ProdutoController::class, 'achadinhos']);
 Route::get('/produtos/{produto}', [ProdutoController::class, 'show']);
+
+Route::get('/categorias/arvore', [CategoriaController::class, 'arvore']);
 
 Route::get('/carrinho', [CarrinhoController::class, 'mostrar']);
 Route::post('/carrinho/itens', [CarrinhoController::class, 'adicionarItem']);
@@ -56,8 +59,13 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/produtos/{produto}', [ProdutoController::class, 'show']);
     Route::apiResource('produtos', ProdutoController::class)->except(['index', 'show']);
 
-    // Necessário para o <select> de categoria no formulário de produto.
+    // Necessário para o <select> de categoria no formulário de produto,
+    // e o CRUD completo pra gerenciar categoria/subcategoria/sub-subcategoria.
     Route::get('/categorias', [CategoriaController::class, 'index']);
+    Route::get('/categorias/arvore', [CategoriaController::class, 'arvore']);
+    Route::post('/categorias', [CategoriaController::class, 'store']);
+    Route::put('/categorias/{categoria}', [CategoriaController::class, 'update']);
+    Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy']);
 
     Route::get('/pedidos', [PedidoController::class, 'index']);
     Route::get('/pedidos/{pedido}', [PedidoController::class, 'show']);

@@ -29,6 +29,7 @@ const routes = [
         component: () => import('@/views/ProdutoFormView.vue'),
         props: true,
       },
+      { path: 'categorias', name: 'categorias', component: () => import('@/views/CategoriasView.vue') },
       { path: 'pedidos', name: 'pedidos', component: () => import('@/views/PedidosView.vue') },
       { path: 'clientes', name: 'clientes', component: () => import('@/views/ClientesView.vue') },
       { path: 'envios', name: 'envios', component: () => import('@/views/EnviosView.vue') },

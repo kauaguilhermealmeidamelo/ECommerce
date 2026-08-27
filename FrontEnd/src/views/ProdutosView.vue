@@ -5,7 +5,10 @@
         <h1 class="font-display pagina__titulo">Produtos</h1>
         <p class="pagina__subtitulo">Peças cadastradas na sua loja.</p>
       </div>
-      <button class="btn btn--primario" @click="router.push({ name: 'produto-novo' })">+ Novo</button>
+      <div class="cabecalho__acoes">
+        <button class="btn btn--secundario" @click="router.push({ name: 'categorias' })">Categorias</button>
+        <button class="btn btn--primario" @click="router.push({ name: 'produto-novo' })">+ Novo</button>
+      </div>
     </div>
 
     <div v-if="carregando">Carregando...</div>
@@ -19,7 +22,7 @@
         class="item"
         @click="router.push({ name: 'produto-editar', params: { id: produto.id } })"
       >
-        <img v-if="produto.imagem_url" :src="produto.imagem_url" class="item__imagem" alt="" />
+        <img v-if="capaDoProduto(produto)" :src="capaDoProduto(produto)" class="item__imagem" alt="" />
         <div v-else class="item__imagem item__imagem--vazia">🏷️</div>
 
         <div class="item__info">
@@ -29,8 +32,8 @@
 
         <div class="item__valores">
           <strong>{{ formatarMoeda(produto.preco) }}</strong>
-          <span class="item__estoque" :class="{ 'item__estoque--baixo': produto.estoque <= 2 }">
-            {{ produto.estoque }} un.
+          <span class="item__estoque" :class="{ 'item__estoque--baixo': produto.estoque_total <= 2 }">
+            {{ produto.estoque_total }} un.
           </span>
         </div>
       </li>
@@ -50,6 +53,7 @@ const carregando = ref(true)
 const erro = ref(null)
 
 const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
+const capaDoProduto = (produto) => produto.imagens?.[0]?.url ?? produto.imagem_url ?? null
 
 async function carregar() {
   try {
@@ -66,7 +70,8 @@ onMounted(carregar)
 </script>
 
 <style scoped>
-.cabecalho { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
+.cabecalho { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; gap: .75rem; }
+.cabecalho__acoes { display: flex; gap: .5rem; flex-shrink: 0; }
 .lista { list-style: none; padding: 0; margin: 0; }
 .item { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-bottom: 1px solid var(--line); cursor: pointer; }
 .item:hover { background: #fafafa; }

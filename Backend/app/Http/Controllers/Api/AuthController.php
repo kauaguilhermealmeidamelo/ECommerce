@@ -11,6 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -37,5 +39,38 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(status: 204);
+    }
+
+    public function redirecionarGoogle()
+    {
+        /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
+        $driver = Socialite::driver('google');
+        
+        return $driver->stateless()->redirect();
+    }
+
+    public function callbackGoogle()
+    {
+        try {
+            /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
+            $driver = Socialite::driver('google');
+            $googleUser = $driver->stateless()->user();
+            
+            $user = User::updateOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'name' => $googleUser->getName(),
+                    'password' => bcrypt(Str::random(24)),
+                ]
+            );
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+            
+            return redirect()->away("{$frontendUrl}/auth/callback?token={$token}");
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Falha na autenticação com o Google'], 500);
+        }
     }
 }
