@@ -12,13 +12,23 @@ use Illuminate\Http\Request;
 
 class ProdutoController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => Produto::with(['categoria', 'variacoes'])->paginate(20)->items()]);
+        $query = Produto::with(['categoria', 'variacoes']);
+
+        if (!$request->user()?->is_admin) {
+            $query->where('ativo', true);
+        }
+
+        return response()->json(['data' => $query->paginate(20)->items()]);
     }
 
-    public function show(Produto $produto): JsonResponse
+    public function show(Request $request, Produto $produto): JsonResponse
     {
+        if (!$produto->ativo && !$request->user()?->is_admin) {
+            abort(404);
+        }
+
         return response()->json(['data' => $produto->load(['categoria', 'variacoes'])]);
     }
 
