@@ -29,11 +29,16 @@ const routes = [
         component: () => import('@/views/ProdutoFormView.vue'),
         props: true,
       },
+      // Sem item próprio na navegação principal — acessível pelo botão
+      // "Categorias" dentro da tela de Produtos.
       { path: 'categorias', name: 'categorias', component: () => import('@/views/CategoriasView.vue') },
+      // Pedidos agora inclui a antiga tela de Envios como uma aba interna
+      // ("Aguardando Envio"), então não existe mais rota /envios separada.
       { path: 'pedidos', name: 'pedidos', component: () => import('@/views/PedidosView.vue') },
       { path: 'clientes', name: 'clientes', component: () => import('@/views/ClientesView.vue') },
-      { path: 'envios', name: 'envios', component: () => import('@/views/EnviosView.vue') },
-      { path: 'entregas', name: 'entregas', component: () => import('@/views/EntregasView.vue') },
+      // Substitui a antiga tela de Entregas: agora reúne Loja + Vendas +
+      // Entregas em abas dentro de uma única tela de Configurações.
+      { path: 'configuracoes', name: 'configuracoes', component: () => import('@/views/ConfiguracoesView.vue') },
     ],
   },
 ]

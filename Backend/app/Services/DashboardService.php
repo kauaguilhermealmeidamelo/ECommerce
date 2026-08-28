@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\StatusPedido;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -22,12 +23,20 @@ class DashboardService
      */
     public function resumoGeral(): array
     {
+        $inicioMesAtual = now()->startOfMonth();
+        $fimMesAtual = now()->endOfMonth();
+        $inicioMesAnterior = now()->subMonthNoOverflow()->startOfMonth();
+        $fimMesAnterior = now()->subMonthNoOverflow()->endOfMonth();
+
         return [
-            'mes_atual' => $this->resumoPeriodo(now()->startOfMonth(), now()->endOfMonth()),
-            'mes_anterior' => $this->resumoPeriodo(
-                now()->subMonthNoOverflow()->startOfMonth(),
-                now()->subMonthNoOverflow()->endOfMonth()
-            ),
+            'mes_atual' => [
+                ...$this->resumoPeriodo($inicioMesAtual, $fimMesAtual),
+                'novos_clientes' => $this->novosClientesPeriodo($inicioMesAtual, $fimMesAtual),
+            ],
+            'mes_anterior' => [
+                ...$this->resumoPeriodo($inicioMesAnterior, $fimMesAnterior),
+                'novos_clientes' => $this->novosClientesPeriodo($inicioMesAnterior, $fimMesAnterior),
+            ],
             'serie_mensal' => $this->serieMensal(6),
             'categorias_mais_vendidas' => $this->categoriasMaisVendidas(90),
         ];
@@ -60,6 +69,19 @@ class DashboardService
     }
 
     /**
+     * Quantos usuários não-admin (ou seja, clientes — cadastrados pelo
+     * próprio fluxo de login/registro do storefront público, nunca criados
+     * manualmente pelo admin) se cadastraram num período. Alimenta o card
+     * "Novos Clientes" do dashboard.
+     */
+    private function novosClientesPeriodo(Carbon $inicio, Carbon $fim): int
+    {
+        return User::where('is_admin', false)
+            ->whereBetween('created_at', [$inicio, $fim])
+            ->count();
+    }
+
+    /**
      * Série dos últimos N meses (incluindo o atual), pra gráfico de linha.
      */
     private function serieMensal(int $meses): array
@@ -80,7 +102,10 @@ class DashboardService
     }
 
     /**
-     * Ranking de categorias por quantidade vendida num período (dias corridos).
+     * Ranking de categorias por quantidade e faturamento vendidos num
+     * período (dias corridos). Usado tanto na lista de "mais vendidas"
+     * quanto no gráfico de vendas por categoria — ambos consomem o mesmo
+     * payload, só mudando a métrica exibida (quantidade x faturamento).
      */
     public function categoriasMaisVendidas(int $dias = 90, int $limite = 10): array
     {
@@ -93,10 +118,11 @@ class DashboardService
             ->selectRaw('SUM(ip.quantidade) as quantidade_vendida')
             ->selectRaw('SUM(ip.quantidade * ip.preco_unitario) as faturamento')
             ->groupBy('c.id', 'c.nome')
-            ->orderByDesc('quantidade_vendida')
+            ->orderByDesc('faturamento')
             ->limit($limite)
             ->get();
 
+        $totalFaturamento = $linhas->sum('faturamento') ?: 1;
         $totalQuantidade = $linhas->sum('quantidade_vendida') ?: 1;
 
         return $linhas->map(fn ($linha) => [
@@ -104,6 +130,7 @@ class DashboardService
             'quantidade_vendida' => (int) $linha->quantidade_vendida,
             'faturamento' => round((float) $linha->faturamento, 2),
             'percentual' => round(($linha->quantidade_vendida / $totalQuantidade) * 100, 1),
+            'percentual_faturamento' => round(($linha->faturamento / $totalFaturamento) * 100, 1),
         ])->toArray();
     }
 

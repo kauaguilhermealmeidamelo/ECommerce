@@ -1,54 +1,32 @@
 <template>
-  <div class="card">
-    <div class="card__icone" v-html="icone"></div>
-    <div>
-      <strong class="card__valor">{{ valor }}</strong>
-      <span class="card__label">{{ label }}</span>
-      <span v-if="variacao !== null" class="card__variacao" :class="variacao >= 0 ? 'up' : 'down'">
+  <div class="stat card">
+    <div class="stat__topo">
+      <div class="icon-box" :class="`icon-box--${cor}`" v-html="icone"></div>
+      <span v-if="variacao !== null" class="badge" :class="variacao >= 0 ? 'badge--success' : 'badge--danger'">
         {{ variacao >= 0 ? '▲' : '▼' }} {{ Math.abs(variacao).toFixed(1) }}%
       </span>
     </div>
+    <strong class="stat__valor">{{ valor }}</strong>
+    <span class="stat__label">{{ label }}</span>
+    <span v-if="sub" class="stat__sub">{{ sub }}</span>
   </div>
 </template>
 
 <script setup>
 defineProps({
   icone: { type: String, default: '' },
+  cor: { type: String, default: 'azul' }, // azul | verde | roxo | laranja | vermelho | ambar
   valor: { type: [String, Number], required: true },
   label: { type: String, required: true },
   variacao: { type: Number, default: null },
+  sub: { type: String, default: '' },
 })
 </script>
 
 <style scoped>
-.card {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-}
-.card__icone {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: var(--icon-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 1.2rem;
-}
-.card__valor {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: 1.55rem;
-  display: block;
-  line-height: 1;
-}
-.card__label { color: var(--ink-soft); font-size: .85rem; margin-top: .3rem; display: block; }
-.card__variacao { font-size: .78rem; font-weight: 600; margin-top: .25rem; display: inline-block; }
-.up { color: var(--success); }
-.down { color: var(--danger); }
+.stat { padding: 1.1rem; display: flex; flex-direction: column; gap: .1rem; }
+.stat__topo { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: .7rem; }
+.stat__valor { font-size: 1.4rem; font-weight: 800; color: var(--ink); line-height: 1.1; }
+.stat__label { font-size: .78rem; font-weight: 600; color: var(--ink-soft); margin-top: .2rem; }
+.stat__sub { font-size: .7rem; color: var(--ink-faint); margin-top: .15rem; }
 </style>

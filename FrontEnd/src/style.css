@@ -1,13 +1,49 @@
+/*
+ * Design system do painel — espelha o protótipo Figma (fundo cinza claro,
+ * cards brancos arredondados, azul como cor de destaque única, tipografia
+ * Inter). Componentes usam essas variáveis/classes em vez de valores soltos,
+ * então trocar a identidade do painel (se algum dia precisar) é só editar aqui.
+ * OBS: isso é o admin — a vitrine pública continua usando seu próprio tema
+ * (ver src/theme/tema.js no storefront-base), esse arquivo não mexe nela.
+ */
 :root {
-  --navy: #1c2a63;
-  --navy-dark: #14204d;
-  --icon-bg: #e7ecfb;
-  --ink: #1f2430;
-  --ink-soft: #7a7f8c;
-  --line: #e7e8ee;
-  --bg: #ffffff;
-  --danger: #b3413a;
-  --success: #2f7a4f;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-50: #eff6ff;
+
+  --ink: #111827;
+  --ink-soft: #6b7280;
+  --ink-faint: #9ca3af;
+
+  --line: #f3f4f6;
+  --line-strong: #e5e7eb;
+
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+
+  --success: #16a34a;
+  --success-bg: #dcfce7;
+  --danger: #dc2626;
+  --danger-bg: #fee2e2;
+  --warning: #d97706;
+  --warning-bg: #fef3c7;
+  --info: #7c3aed;
+  --info-bg: #ede9fe;
+
+  /* Aliases de compatibilidade — telas antigas (Categorias, formulário de
+     produto, login, item de árvore de categoria) ainda usam esses nomes de
+     variável no <style scoped> delas. Manter os aliases evita ter que
+     reescrever esses arquivos só por causa da troca de paleta. */
+  --navy: var(--blue-600);
+  --navy-dark: var(--blue-700);
+  --icon-bg: var(--blue-50);
+
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.04), 0 1px 1px rgba(17, 24, 39, 0.03);
+  --shadow-md: 0 10px 30px rgba(17, 24, 39, 0.08);
 }
 
 * { box-sizing: border-box; }
@@ -16,63 +52,195 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, .font-display {
-  font-family: 'Playfair Display', serif;
-}
+h1, h2, h3 { margin: 0; }
 
 a { color: inherit; text-decoration: none; }
 
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
+button { font-family: inherit; cursor: pointer; }
 
+input, select, textarea {
+  font-family: inherit;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: .65rem .8rem;
+  font-size: .875rem;
+  width: 100%;
+  background: #fafafa;
+  color: var(--ink);
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--blue-600);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--blue-50);
+}
+textarea { resize: vertical; }
+
+/* ─── Layout de página ──────────────────────────────────────────────── */
+.pagina {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.pagina__cabecalho { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+.pagina__titulo { font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+.pagina__subtitulo { font-size: .8rem; color: var(--ink-soft); margin-top: .15rem; }
+.pagina__acoes { display: flex; gap: .5rem; flex-shrink: 0; }
+
+/* ─── Cartão base ───────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+/* Alias — telas antigas (Categorias) ainda usam a classe .painel pro
+   container branco com borda; equivale 1:1 ao .card novo. */
+.painel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 1.25rem 1.1rem; }
+
+.card__cabecalho {
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+.card__titulo { font-size: .92rem; font-weight: 700; color: var(--ink); }
+.card__subtitulo { font-size: .74rem; color: var(--ink-soft); margin-top: .1rem; }
+
+/* ─── Botões ─────────────────────────────────────────────────────────── */
 .btn {
   border: none;
-  border-radius: 10px;
-  padding: .65rem 1.1rem;
+  border-radius: var(--radius-sm);
+  padding: .62rem 1rem;
   font-weight: 600;
-  font-size: .9rem;
+  font-size: .85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
 }
-.btn--primario { background: var(--navy); color: #fff; }
-.btn--secundario { background: var(--icon-bg); color: var(--navy); }
-.btn--perigo { background: #fbe9e7; color: var(--danger); }
+.btn--primario { background: var(--blue-600); color: #fff; box-shadow: var(--shadow-sm); }
+.btn--primario:hover { background: var(--blue-700); }
+.btn--primario:disabled { opacity: .55; cursor: not-allowed; }
+.btn--secundario { background: #fff; color: var(--ink-soft); border: 1px solid var(--line-strong); }
+.btn--secundario:hover { background: #fafafa; }
+.btn--perigo { background: var(--danger-bg); color: var(--danger); }
+.btn--perigo:hover { background: #fecaca; }
+.btn--fantasma { background: transparent; color: var(--ink-soft); }
+.btn--fantasma:hover { color: var(--ink); }
+.btn--ativo { border-color: var(--blue-600); color: var(--blue-600); background: var(--blue-50); }
+.btn--bloco { width: 100%; justify-content: center; }
 
-input, select {
-  font-family: inherit;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: .6rem .75rem;
-  font-size: .9rem;
-  width: 100%;
-}
-input:focus, select:focus {
-  outline: 2px solid var(--navy);
-  outline-offset: 1px;
-}
-
-.painel {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 1.25rem 1.1rem;
-}
-
-.pagina {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 1.25rem 1.25rem 5.5rem;
-}
-
-.pagina__titulo {
+/* ─── Badges / pílulas de status ────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .72rem;
   font-weight: 700;
-  font-size: 1.7rem;
-  margin: 0 0 .3rem;
+  padding: .28rem .65rem;
+  border-radius: 999px;
+  white-space: nowrap;
 }
-.pagina__subtitulo {
+.badge--dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge--success { background: var(--success-bg); color: var(--success); }
+.badge--danger { background: var(--danger-bg); color: var(--danger); }
+.badge--warning { background: var(--warning-bg); color: var(--warning); }
+.badge--info { background: var(--info-bg); color: var(--info); }
+.badge--neutral { background: #f3f4f6; color: var(--ink-soft); }
+.badge--azul { background: var(--blue-50); color: var(--blue-600); }
+
+/* ─── Chips de filtro ───────────────────────────────────────────────── */
+.filtro-chip {
+  padding: .4rem .8rem;
+  border-radius: var(--radius-sm);
+  font-size: .78rem;
+  font-weight: 600;
+  background: #f3f4f6;
   color: var(--ink-soft);
-  margin: 0 0 1.25rem;
-  font-size: .92rem;
+  border: none;
+}
+.filtro-chip--ativo { background: var(--blue-600); color: #fff; }
+
+/* ─── Ícone em quadrado colorido (StatCard etc) ─────────────────────── */
+.icon-box { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; }
+.icon-box--azul { background: var(--blue-50); color: var(--blue-600); }
+.icon-box--verde { background: #f0fdf4; color: var(--success); }
+.icon-box--roxo { background: #f5f3ff; color: var(--info); }
+.icon-box--laranja { background: #fff7ed; color: #ea580c; }
+.icon-box--vermelho { background: var(--danger-bg); color: var(--danger); }
+.icon-box--ambar { background: var(--warning-bg); color: var(--warning); }
+
+/* ─── Tabela de dados (desktop) ──────────────────────────────────────── */
+.tabela { width: 100%; border-collapse: collapse; min-width: 640px; }
+.tabela thead tr { border-bottom: 1px solid #fafafa; background: #fafbfc; }
+.tabela th { text-align: left; padding: .7rem 1rem; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-faint); white-space: nowrap; }
+.tabela tbody tr { border-bottom: 1px solid #fafafa; transition: background .1s; }
+.tabela tbody tr:hover { background: #fafbfc; }
+.tabela td { padding: .7rem 1rem; font-size: .85rem; color: var(--ink); vertical-align: middle; }
+.tabela__scroll { overflow-x: auto; }
+.tabela__vazio { text-align: center; padding: 3rem 1rem; color: var(--ink-faint); font-size: .85rem; }
+
+/* ─── Lista mobile (cards empilhados) ───────────────────────────────── */
+.lista-mobile { display: flex; flex-direction: column; }
+.lista-mobile__item { padding: .85rem 1rem; border-bottom: 1px solid #fafafa; display: flex; align-items: center; gap: .7rem; }
+.lista-mobile__item:last-child { border-bottom: none; }
+
+/* ─── Avatar circular ────────────────────────────────────────────────── */
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 700; flex-shrink: 0;
+  background: var(--blue-50); color: var(--blue-600);
+}
+
+/* ─── Interruptor (switch) ───────────────────────────────────────────── */
+/* Nome "interruptor" (não "toggle") de propósito — o formulário antigo de
+   produto (ProdutoFormView) já usa a classe .toggle, escopada, pra um
+   layout completamente diferente (linha de checkbox). Evita colisão. */
+.interruptor { position: relative; width: 40px; height: 24px; border-radius: 999px; background: var(--line-strong); border: none; flex-shrink: 0; transition: background .15s; }
+.interruptor::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.interruptor--ligado { background: var(--blue-600); }
+.interruptor--ligado::after { transform: translateX(16px); }
+
+/* ─── Barra de progresso fina ────────────────────────────────────────── */
+.barra { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.barra__preenchimento { height: 100%; border-radius: 999px; }
+
+/* ─── Campo de busca (input com ícone) ───────────────────────────────── */
+.busca {
+  display: flex; align-items: center; gap: .5rem;
+  background: #fafafa; border: 1px solid var(--line-strong); border-radius: var(--radius-md);
+  padding: .55rem .8rem;
+}
+.busca:focus-within { border-color: var(--blue-600); background: #fff; box-shadow: 0 0 0 3px var(--blue-50); }
+.busca input { border: none; background: transparent; padding: 0; box-shadow: none !important; }
+.busca svg { flex-shrink: 0; color: var(--ink-faint); }
+
+/* ─── Grade de métricas responsiva ──────────────────────────────────── */
+.grade-metricas { display: grid; grid-template-columns: repeat(2, 1fr); gap: .85rem; }
+@media (min-width: 900px) { .grade-metricas { grid-template-columns: repeat(4, 1fr); } }
+
+.grade-mini-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+@media (min-width: 640px) { .grade-mini-stats { grid-template-columns: repeat(3, 1fr); } }
+
+/* ─── Empty / loading states ─────────────────────────────────────────── */
+.estado-vazio { text-align: center; padding: 2.5rem 1rem; color: var(--ink-faint); font-size: .85rem; }
+.estado-carregando { text-align: center; padding: 2.5rem 1rem; color: var(--ink-soft); font-size: .85rem; }
+.erro-mensagem { color: var(--danger); font-size: .82rem; }
+
+@media (min-width: 768px) {
+  .pagina { padding: 1.5rem 1.5rem 8rem; }
 }
