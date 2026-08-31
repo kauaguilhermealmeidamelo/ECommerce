@@ -34,6 +34,33 @@ class AuthController extends Controller
         return response()->json(['token' => $token, 'usuario' => $usuario]);
     }
 
+    /**
+     * POST /api/auth/registro (público — cadastro do cliente na vitrine).
+     * Sempre cria com is_admin=false: essa rota nunca deve poder criar
+     * um administrador, mesmo que o payload tente forçar o campo.
+     */
+    public function registrar(Request $request): JsonResponse
+    {
+        $dados = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'senha' => ['required', 'string', 'min:6', 'confirmed'],
+            'telefone' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $usuario = User::create([
+            'name' => $dados['name'],
+            'email' => $dados['email'],
+            'password' => Hash::make($dados['senha']),
+            'telefone' => $dados['telefone'] ?? null,
+            'is_admin' => false,
+        ]);
+
+        $token = $usuario->createToken('cliente')->plainTextToken;
+
+        return response()->json(['token' => $token, 'usuario' => $usuario], 201);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();

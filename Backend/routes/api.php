@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CarrinhoController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ClienteController;
+use App\Http\Controllers\Api\ClientePedidoController;
 use App\Http\Controllers\Api\ConfiguracaoLojaController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EntregaController;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/registro', [AuthController::class, 'registrar'])->middleware('throttle:6,1');
 
 Route::get('/produtos', [ProdutoController::class, 'index']);
 Route::get('/produtos/achadinhos', [ProdutoController::class, 'achadinhos']);
@@ -32,6 +34,8 @@ Route::get('/categorias/arvore', [CategoriaController::class, 'arvore']);
 
 Route::get('/carrinho', [CarrinhoController::class, 'mostrar']);
 Route::post('/carrinho/itens', [CarrinhoController::class, 'adicionarItem']);
+Route::patch('/carrinho/itens/{item}', [CarrinhoController::class, 'atualizarItem']);
+Route::delete('/carrinho/itens/{item}', [CarrinhoController::class, 'removerItem']);
 
 Route::post('/checkout/frete', [CheckoutController::class, 'calcularFreteEndpoint']);
 Route::post('/checkout/finalizar', [CheckoutController::class, 'finalizar']);
@@ -39,7 +43,24 @@ Route::post('/checkout/finalizar', [CheckoutController::class, 'finalizar']);
 Route::post('/visitas', [VisitaController::class, 'registrar']);
 Route::get('/frete/opcoes', [EntregaController::class, 'opcoes']);
 
+// Dados da loja (nome, contato, endereço, redes sociais) — usado no
+// footer da vitrine. Nada sensível: mesmo conteúdo que /admin/loja.
+Route::get('/loja', [InformacaoLojaController::class, 'mostrar']);
+
 Route::post('/webhooks/mercadopago', [WebhookMercadoPagoController::class, 'processar']);
+
+/*
+|--------------------------------------------------------------------------
+| Rotas do cliente autenticado — vitrine (auth:sanctum, sem admin)
+|--------------------------------------------------------------------------
+| Qualquer usuário logado (cliente comum) pode ver e rastrear os PRÓPRIOS
+| pedidos. O dono é sempre conferido no controller, nunca confiado pela URL.
+*/
+
+Route::middleware('auth:sanctum')->prefix('minha-conta')->group(function () {
+    Route::get('/pedidos', [ClientePedidoController::class, 'index']);
+    Route::get('/pedidos/{pedido}', [ClientePedidoController::class, 'show']);
+});
 
 /*
 |--------------------------------------------------------------------------

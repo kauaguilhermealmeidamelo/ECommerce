@@ -32,7 +32,11 @@ class WebhookMercadoPagoController extends Controller
 
         $pagamento = $this->mercadoPagoService->consultarPagamento($request->input('data.id'));
 
-        if (($pagamento['status'] ?? null) !== 'approved') {
+        if (empty($pagamento)) {
+            // Falha ao consultar a API do MP (ver log em consultarPagamento).
+            // Devolvemos 200 mesmo assim — retornar erro faria o MP ficar
+            // reenviando a mesma notificação indefinidamente; o próximo
+            // webhook real (ex: quando o status mudar de novo) tenta de novo.
             return response()->noContent();
         }
 
@@ -46,22 +50,25 @@ class WebhookMercadoPagoController extends Controller
             return response()->noContent();
         }
 
-        // Valor pago precisa bater com o total do pedido — evita confirmar
-        // um pedido por engano caso o external_reference esteja incorreto
-        // ou o pedido tenha sido alterado depois de criado.
-        $diferenca = abs((float) $pagamento['transaction_amount'] - (float) $pedido->total);
+        // Valor pago precisa bater com o total do pedido — só checamos
+        // isso quando o pagamento está de fato aprovado. Pra outros status
+        // (recusado, cancelado, em análise) não há valor "cobrado" ainda
+        // pra divergir, então o pedido é atualizado normalmente.
+        if ($pagamento['status'] === 'approved') {
+            $diferenca = abs((float) $pagamento['transaction_amount'] - (float) $pedido->total);
 
-        if ($diferenca > 0.01) {
-            Log::warning('Webhook MP: valor pago diverge do total do pedido, pagamento não confirmado automaticamente', [
-                'pedido_id' => $pedido->id,
-                'total_pedido' => $pedido->total,
-                'valor_pago' => $pagamento['transaction_amount'],
-            ]);
+            if ($diferenca > 0.01) {
+                Log::warning('Webhook MP: valor pago diverge do total do pedido, pagamento não confirmado automaticamente', [
+                    'pedido_id' => $pedido->id,
+                    'total_pedido' => $pedido->total,
+                    'valor_pago' => $pagamento['transaction_amount'],
+                ]);
 
-            return response()->noContent();
+                return response()->noContent();
+            }
         }
 
-        $this->pedidoService->confirmarPagamento($pedido);
+        $this->pedidoService->atualizarComPagamento($pedido, $pagamento);
 
         return response()->noContent();
     }

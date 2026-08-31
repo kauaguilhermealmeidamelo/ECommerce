@@ -5,25 +5,28 @@
         <h1 class="pagina__titulo">Clientes</h1>
         <p class="pagina__subtitulo">{{ filtrados.length }} encontrado{{ filtrados.length !== 1 ? 's' : '' }}</p>
       </div>
-      <button class="btn btn--secundario" :class="{ 'btn--ativo': !!busca }" @click="filtroAberto = true">🔍 Filtros</button>
+      <button class="btn btn--secundario" :class="{ 'btn--ativo': !!busca }" @click="filtroAberto = true">
+        <v-icon icon="mdi-magnify" size="small" class="mr-1"></v-icon> Filtros
+      </button>
     </div>
 
     <p class="aviso-cadastro">
-      ℹ️ Clientes se cadastram sozinhos pela loja (login/criação de conta no storefront). Não existe cadastro manual aqui —
+      ℹ️ Clientes se cadastram sozinhos pela loja (login/criação de conta no storefront). Não existe cadastro manual
+      aqui —
       esta tela é só consulta.
     </p>
 
     <div class="grade-mini-stats">
       <div class="card mini-stat">
-        <div class="icon-box icon-box--roxo">⭐</div>
+        <div class="icon-box icon-box--roxo"><v-icon icon="mdi-star-outline"></v-icon></div>
         <div><strong>{{ contagem.vip }}</strong><span>VIP (gastaram mais)</span></div>
       </div>
       <div class="card mini-stat">
-        <div class="icon-box icon-box--azul">👥</div>
+        <div class="icon-box icon-box--azul"><v-icon icon="mdi-account-group-outline"></v-icon></div>
         <div><strong>{{ contagem.regular }}</strong><span>Regulares</span></div>
       </div>
       <div class="card mini-stat">
-        <div class="icon-box icon-box--verde">🆕</div>
+        <div class="icon-box icon-box--verde"><v-icon icon="mdi-account-plus-outline"></v-icon></div>
         <div><strong>{{ contagem.novo }}</strong><span>Novos (30 dias)</span></div>
       </div>
     </div>
@@ -36,7 +39,16 @@
       <template v-else>
         <div class="tabela__scroll clientes-tabela--desktop">
           <table class="tabela">
-            <thead><tr><th>Cliente</th><th>Contato</th><th>Pedidos</th><th>Total Gasto</th><th>Desde</th><th>Perfil</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Contato</th>
+                <th>Pedidos</th>
+                <th>Total Gasto</th>
+                <th>Desde</th>
+                <th>Perfil</th>
+              </tr>
+            </thead>
             <tbody>
               <tr v-for="c in filtrados" :key="c.id">
                 <td>
@@ -77,12 +89,16 @@
     <Modal :aberto="filtroAberto" titulo="Filtrar Clientes" @fechar="filtroAberto = false">
       <div class="filtro-campo">
         <label>Buscar</label>
-        <div class="busca"><span>🔍</span><input v-model="buscaPendente" placeholder="Nome ou e-mail..." /></div>
+        <div class="busca">
+          <v-icon icon="mdi-magnify" size="small" class="ml-2"></v-icon>
+          <input v-model="buscaPendente" placeholder="Nome ou e-mail..." />
+        </div>
       </div>
       <div class="filtro-campo">
         <label>Perfil</label>
         <div class="filtro-chips">
-          <button v-for="p in ['Todos', 'VIP', 'Regular', 'Novo']" :key="p" class="filtro-chip" :class="{ 'filtro-chip--ativo': perfilPendente === p }" @click="perfilPendente = p">{{ p }}</button>
+          <button v-for="p in ['Todos', 'VIP', 'Regular', 'Novo']" :key="p" class="filtro-chip"
+            :class="{ 'filtro-chip--ativo': perfilPendente === p }" @click="perfilPendente = p">{{ p }}</button>
         </div>
       </div>
       <template #rodape>
@@ -151,15 +167,73 @@ onMounted(carregar)
 </script>
 
 <style scoped>
-.aviso-cadastro { background: var(--blue-50); color: var(--blue-700); font-size: .78rem; padding: .75rem 1rem; border-radius: var(--radius-md); }
-.mini-stat { padding: .9rem; display: flex; align-items: center; gap: .7rem; }
-.mini-stat strong { display: block; font-size: 1.1rem; font-weight: 800; color: var(--ink); }
-.mini-stat span { font-size: .7rem; color: var(--ink-soft); }
-.clientes-tabela--mobile { display: flex; flex-direction: column; }
-.clientes-tabela--desktop { display: none; }
-@media (min-width: 640px) { .clientes-tabela--mobile { display: none; } .clientes-tabela--desktop { display: block; } }
-.clientes__meta { font-size: .72rem; color: var(--ink-faint); margin: .1rem 0 0; }
-.filtro-campo { margin-bottom: 1.1rem; }
-.filtro-campo label { display: block; font-size: .75rem; font-weight: 700; color: var(--ink); margin-bottom: .45rem; }
-.filtro-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.aviso-cadastro {
+  background: var(--blue-50);
+  color: var(--blue-700);
+  font-size: .78rem;
+  padding: .75rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.mini-stat {
+  padding: .9rem;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.mini-stat strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.mini-stat span {
+  font-size: .7rem;
+  color: var(--ink-soft);
+}
+
+.clientes-tabela--mobile {
+  display: flex;
+  flex-direction: column;
+}
+
+.clientes-tabela--desktop {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .clientes-tabela--mobile {
+    display: none;
+  }
+
+  .clientes-tabela--desktop {
+    display: block;
+  }
+}
+
+.clientes__meta {
+  font-size: .72rem;
+  color: var(--ink-faint);
+  margin: .1rem 0 0;
+}
+
+.filtro-campo {
+  margin-bottom: 1.1rem;
+}
+
+.filtro-campo label {
+  display: block;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: .45rem;
+}
+
+.filtro-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
 </style>

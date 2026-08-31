@@ -25,13 +25,14 @@ const route = useRoute()
 // Configurações). Categorias fica dentro de Produtos e Envios dentro de
 // Pedidos (aba), pra não poluir a navegação principal.
 const pedidosPendentesEnvio = ref(0)
+const totalProdutos = ref(0)
 
 const itensNav = computed(() => [
-  { rota: 'dashboard', label: 'Início', icone: '🏠' },
-  { rota: 'produtos', label: 'Produtos', icone: '🏷️' },
-  { rota: 'pedidos', label: 'Pedidos', icone: '🛍️', contador: pedidosPendentesEnvio.value || null },
-  { rota: 'clientes', label: 'Clientes', icone: '👥' },
-  { rota: 'configuracoes', label: 'Config.', icone: '⚙️' },
+  { rota: 'dashboard', label: 'Início', icone: 'mdi-home' },
+  { rota: 'produtos', label: 'Produtos', icone: 'mdi-package-variant', contador: totalProdutos.value || null },
+  { rota: 'pedidos', label: 'Pedidos', icone: 'mdi-shopping', contador: pedidosPendentesEnvio.value || null },
+  { rota: 'clientes', label: 'Clientes', icone: 'mdi-account-group' },
+  { rota: 'configuracoes', label: 'Config.', icone: 'mdi-cog' },
 ])
 
 const titulosPorRota = {
@@ -72,7 +73,19 @@ async function carregarResumoOperacional() {
   }
 }
 
-onMounted(carregarResumoOperacional)
+async function carregarTotalProdutos() {
+  try {
+    const { data } = await api.get('/admin/produtos')
+    totalProdutos.value = data.meta?.total ?? data.data.length
+  } catch (e) {
+    // badge simplesmente não aparece
+  }
+}
+
+onMounted(() => {
+  carregarResumoOperacional()
+  carregarTotalProdutos()
+})
 </script>
 
 <style scoped>
@@ -82,6 +95,7 @@ onMounted(carregarResumoOperacional)
   flex-direction: column;
   background: var(--bg);
 }
+
 .layout__conteudo {
   flex: 1;
 }

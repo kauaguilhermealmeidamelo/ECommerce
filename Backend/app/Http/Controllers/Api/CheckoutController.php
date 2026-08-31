@@ -47,7 +47,17 @@ class CheckoutController extends Controller
             valorFrete: $valorFrete,
         );
 
-        $preferencia = $this->mercadoPagoService->criarPreferencia($pedido);
+        try {
+            $preferencia = $this->mercadoPagoService->criarPreferencia($pedido);
+        } catch (\RuntimeException $e) {
+            // Loja ainda não configurou o Access Token do Mercado Pago
+            // (Configurações > Pagamento nem .env) — o pedido já foi
+            // criado como 'pendente', então nada se perde; o lojista só
+            // precisa configurar e o cliente tenta pagar de novo.
+            return response()->json([
+                'message' => 'Pagamento indisponível no momento. Tente novamente em instantes.',
+            ], 503);
+        }
 
         return response()->json([
             'data' => [

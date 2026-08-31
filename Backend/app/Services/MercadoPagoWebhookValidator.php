@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ConfiguracaoPagamento;
 use Illuminate\Http\Request;
 
 class MercadoPagoWebhookValidator
@@ -9,7 +10,8 @@ class MercadoPagoWebhookValidator
     /**
      * Valida o header x-signature conforme documentação oficial do Mercado Pago.
      * O secret vem de: Painel MP > Suas integrações > (sua aplicação) > Webhooks > Chave secreta.
-     * Guarde em MERCADOPAGO_WEBHOOK_SECRET no .env — nunca no código.
+     * Salvo criptografado em configuracoes_pagamento (Configurações > Pagamento no
+     * admin), com fallback pra MERCADOPAGO_WEBHOOK_SECRET no .env.
      */
     public function valido(Request $request): bool
     {
@@ -35,7 +37,7 @@ class MercadoPagoWebhookValidator
         }
 
         $manifest = "id:{$dataId};request-id:{$requestId};ts:{$ts};";
-        $secret = config('services.mercadopago.webhook_secret');
+        $secret = ConfiguracaoPagamento::atual()->webhookSecret();
 
         if (!$secret) {
             // Sem secret configurado, não dá pra validar — falha fechado,

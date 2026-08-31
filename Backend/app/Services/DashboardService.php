@@ -10,15 +10,6 @@ use Illuminate\Support\Facades\DB;
 class DashboardService
 {
     /**
-     * Status considerados "venda concretizada" pra fins de faturamento/lucro.
-     * AJUSTE os cases abaixo para bater com os valores reais do seu enum StatusPedido.
-     */
-    private const STATUS_VALIDOS = [
-        StatusPedido::Pago->value,
-        StatusPedido::Concluido->value,
-    ];
-
-    /**
      * Payload principal consumido pela tela de dashboard.
      */
     public function resumoGeral(): array
@@ -136,14 +127,19 @@ class DashboardService
 
     /**
      * Base compartilhada: itens de pedidos pagos/concluídos num período.
-     * AJUSTE os nomes de tabela/coluna se divergirem do seu schema.
+     * Usa StatusPedido::statusDeVendaValida() — Recusado, Estornado,
+     * Cancelado, EmAnalise nunca entram aqui, então um pedido que foi
+     * pago e depois estornado some do faturamento automaticamente
+     * (porque seu status muda de 'pago' pra 'estornado').
      */
     private function baseQuery(Carbon $inicio, Carbon $fim)
     {
+        $statusValidos = array_map(fn ($status) => $status->value, StatusPedido::statusDeVendaValida());
+
         return DB::table('itens_pedido as ip')
             ->join('pedidos as p', 'p.id', '=', 'ip.pedido_id')
             ->join('produtos as pr', 'pr.id', '=', 'ip.produto_id')
-            ->whereIn('p.status', self::STATUS_VALIDOS)
+            ->whereIn('p.status', $statusValidos)
             ->whereBetween('p.created_at', [$inicio, $fim]);
     }
 }

@@ -11,7 +11,10 @@ const props = defineProps({
 
 const mapa = {
   pendente: { rotulo: 'Pendente', classe: 'badge--warning' },
+  em_analise: { rotulo: 'Em Análise', classe: 'badge--warning' },
   pago: { rotulo: 'Pago', classe: 'badge--success' },
+  recusado: { rotulo: 'Recusado', classe: 'badge--danger' },
+  estornado: { rotulo: 'Estornado', classe: 'badge--danger' },
   enviado: { rotulo: 'Enviado', classe: 'badge--azul' },
   concluido: { rotulo: 'Concluído', classe: 'badge--success' },
   cancelado: { rotulo: 'Cancelado', classe: 'badge--danger' },

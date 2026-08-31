@@ -9,14 +9,8 @@
     </div>
 
     <ul v-if="categoria.filhas_recursivas?.length" class="no__filhas">
-      <CategoriaArvoreItem
-        v-for="filha in categoria.filhas_recursivas"
-        :key="filha.id"
-        :categoria="filha"
-        :nivel="nivel + 1"
-        @adicionar-filha="$emit('adicionar-filha', $event)"
-        @atualizar="$emit('atualizar')"
-      />
+      <CategoriaArvoreItem v-for="filha in categoria.filhas_recursivas" :key="filha.id" :categoria="filha"
+        :nivel="nivel + 1" @adicionar-filha="$emit('adicionar-filha', $event)" @atualizar="$emit('atualizar')" />
     </ul>
   </li>
 </template>
@@ -44,7 +38,10 @@ async function remover() {
 </script>
 
 <style scoped>
-.no { list-style: none; }
+.no {
+  list-style: none;
+}
+
 .no__linha {
   display: flex;
   justify-content: space-between;
@@ -53,8 +50,18 @@ async function remover() {
   border-bottom: 1px solid var(--line);
   gap: .5rem;
 }
-.no__nome { font-weight: 600; font-size: .92rem; }
-.no__acoes { display: flex; gap: .4rem; flex-shrink: 0; }
+
+.no__nome {
+  font-weight: 600;
+  font-size: .92rem;
+}
+
+.no__acoes {
+  display: flex;
+  gap: .4rem;
+  flex-shrink: 0;
+}
+
 .no__botao {
   border: none;
   background: var(--icon-bg);
@@ -66,6 +73,14 @@ async function remover() {
   cursor: pointer;
   white-space: nowrap;
 }
-.no__botao--perigo { background: #fbe9e7; color: var(--danger); }
-.no__filhas { padding: 0; margin: 0; }
+
+.no__botao--perigo {
+  background: #fbe9e7;
+  color: var(--danger);
+}
+
+.no__filhas {
+  padding: 0;
+  margin: 0;
+}
 </style>

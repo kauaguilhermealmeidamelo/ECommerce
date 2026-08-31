@@ -30,11 +30,13 @@
       <label class="metodo">
         <div>
           <strong>Produto expira após a venda</strong>
-          <p>Ao ativar, assim que um produto é vendido ele sai automaticamente de venda — ideal pra peças únicas de brechó.</p>
+          <p>Ao ativar, assim que um produto é vendido ele sai automaticamente de venda — ideal pra peças únicas de
+            brechó.</p>
         </div>
         <input type="checkbox" v-model="configLoja.produto_expira_apos_venda" />
       </label>
-      <button class="btn btn--secundario" style="margin-top:.75rem" @click="salvarConfigLoja" :disabled="salvandoConfigLoja">
+      <button class="btn btn--secundario" style="margin-top:.75rem" @click="salvarConfigLoja"
+        :disabled="salvandoConfigLoja">
         {{ salvandoConfigLoja ? 'Salvando...' : 'Salvar' }}
       </button>
     </section>
@@ -203,23 +205,106 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.campos { display: flex; flex-direction: column; gap: .75rem; }
-.campos label { display: flex; flex-direction: column; gap: .3rem; font-size: .8rem; color: var(--ink-soft); }
-.campos__linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: .6rem; }
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
 
-.metodos { display: flex; flex-direction: column; gap: 1rem; }
-.metodo { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-.metodo p { margin: .2rem 0 0; font-size: .82rem; color: var(--ink-soft); }
-.metodo input[type="checkbox"] { width: auto; flex-shrink: 0; margin-top: .2rem; accent-color: var(--navy); }
+.campos label {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  font-size: .8rem;
+  color: var(--ink-soft);
+}
 
-.painel__cabecalho { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-.painel__titulo { font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin: 0; font-weight: 700; }
+.campos__linha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: .6rem;
+}
 
-.zona { border-top: 1px solid var(--line); padding-top: .9rem; margin-top: .9rem; }
-.zona__campos { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: .6rem; }
-.zona__campos label { display: flex; flex-direction: column; gap: .25rem; font-size: .78rem; color: var(--ink-soft); }
-.zona__remover { font-size: .78rem; padding: .4rem .8rem; }
+.metodos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
-.aviso { font-size: .82rem; color: var(--ink-soft); background: var(--icon-bg); padding: .75rem; border-radius: 10px; }
-.mensagem { text-align: center; font-size: .85rem; color: var(--ink-soft); margin-top: .75rem; }
+.metodo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.metodo p {
+  margin: .2rem 0 0;
+  font-size: .82rem;
+  color: var(--ink-soft);
+}
+
+.metodo input[type="checkbox"] {
+  width: auto;
+  flex-shrink: 0;
+  margin-top: .2rem;
+  accent-color: var(--navy);
+}
+
+.painel__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.painel__titulo {
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-soft);
+  margin: 0;
+  font-weight: 700;
+}
+
+.zona {
+  border-top: 1px solid var(--line);
+  padding-top: .9rem;
+  margin-top: .9rem;
+}
+
+.zona__campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+  margin-bottom: .6rem;
+}
+
+.zona__campos label {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  font-size: .78rem;
+  color: var(--ink-soft);
+}
+
+.zona__remover {
+  font-size: .78rem;
+  padding: .4rem .8rem;
+}
+
+.aviso {
+  font-size: .82rem;
+  color: var(--ink-soft);
+  background: var(--icon-bg);
+  padding: .75rem;
+  border-radius: 10px;
+}
+
+.mensagem {
+  text-align: center;
+  font-size: .85rem;
+  color: var(--ink-soft);
+  margin-top: .75rem;
+}
 </style>

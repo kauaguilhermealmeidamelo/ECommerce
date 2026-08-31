@@ -19,6 +19,13 @@ class ProdutoController extends Controller
     private const TAMANHOS_VALIDOS = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
     private const MAX_IMAGENS = 8;
 
+    /**
+     * GET /api/produtos?categoria_id=&por_pagina=
+     * categoria_id: opcional — usado pela vitrine pra montar cada seção
+     * do catálogo (uma categoria por vez) sem trazer o catálogo inteiro.
+     * por_pagina: opcional (padrão 20) — a seção de prévia do catálogo
+     * pede poucos itens (ex: 8), a página "ver tudo" pede mais.
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Produto::with(['categoria', 'variacoes', 'imagens']);
@@ -27,7 +34,13 @@ class ProdutoController extends Controller
             $query->where('ativo', true);
         }
 
-        return response()->json(['data' => $query->paginate(20)->items()]);
+        if ($request->filled('categoria_id')) {
+            $query->where('categoria_id', (int) $request->query('categoria_id'));
+        }
+
+        $porPagina = (int) $request->query('por_pagina', 20);
+
+        return response()->json(['data' => $query->paginate($porPagina)->items()]);
     }
 
     /**

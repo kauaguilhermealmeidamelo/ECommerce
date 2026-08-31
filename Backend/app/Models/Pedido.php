@@ -13,11 +13,13 @@ class Pedido extends Model
         'destinatario_nome', 'destinatario_cep', 'destinatario_endereco',
         'destinatario_numero', 'destinatario_complemento', 'destinatario_bairro',
         'destinatario_cidade', 'destinatario_uf',
+        'mercadopago_payment_id', 'metodo_pagamento', 'pago_em', 'motivo_recusa',
     ];
 
     protected $casts = [
         'status' => StatusPedido::class,
         'enviado_em' => 'datetime',
+        'pago_em' => 'datetime',
     ];
 
     public function usuario()

@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useClienteAuthStore } from '@/stores/clienteAuth'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import LojaLayout from '@/layouts/LojaLayout.vue'
 
 // Prefixo não-óbvio, único por cliente — defina em .env como algo tipo
 // VITE_ADMIN_PATH=painel-9x4k2. Isso NÃO substitui autenticação: é só
@@ -10,6 +12,11 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 const prefixo = import.meta.env.VITE_ADMIN_PATH || 'painel'
 
 const routes = [
+  /*
+  |------------------------------------------------------------------
+  | Painel administrativo
+  |------------------------------------------------------------------
+  */
   {
     path: `/${prefixo}/login`,
     name: 'login',
@@ -29,16 +36,46 @@ const routes = [
         component: () => import('@/views/ProdutoFormView.vue'),
         props: true,
       },
-      // Sem item próprio na navegação principal — acessível pelo botão
-      // "Categorias" dentro da tela de Produtos.
       { path: 'categorias', name: 'categorias', component: () => import('@/views/CategoriasView.vue') },
-      // Pedidos agora inclui a antiga tela de Envios como uma aba interna
-      // ("Aguardando Envio"), então não existe mais rota /envios separada.
       { path: 'pedidos', name: 'pedidos', component: () => import('@/views/PedidosView.vue') },
       { path: 'clientes', name: 'clientes', component: () => import('@/views/ClientesView.vue') },
-      // Substitui a antiga tela de Entregas: agora reúne Loja + Vendas +
-      // Entregas em abas dentro de uma única tela de Configurações.
       { path: 'configuracoes', name: 'configuracoes', component: () => import('@/views/ConfiguracoesView.vue') },
+    ],
+  },
+
+  /*
+  |------------------------------------------------------------------
+  | Vitrine (pública) — mesmo app, rotas na raiz do domínio
+  |------------------------------------------------------------------
+  | requerAuthCliente: precisa estar logado como CLIENTE (useClienteAuthStore),
+  | nada a ver com o requerAuth do admin acima.
+  */
+  {
+    path: '/',
+    component: LojaLayout,
+    children: [
+      { path: '', name: 'home', component: () => import('@/views/HomeView.vue') },
+      { path: 'catalogo', name: 'catalogo', component: () => import('@/views/CatalogoView.vue') },
+      { path: 'produto/:id', name: 'produto', component: () => import('@/views/ProdutoView.vue'), props: true },
+      { path: 'carrinho', name: 'carrinho', component: () => import('@/views/CarrinhoView.vue') },
+      { path: 'checkout', name: 'checkout', component: () => import('@/views/CheckoutView.vue') },
+      { path: 'pedido-sucesso', name: 'pedido-sucesso', component: () => import('@/views/PedidoSucessoView.vue') },
+
+      { path: 'cadastro', name: 'cadastro', component: () => import('@/views/CadastroView.vue') },
+      { path: 'entrar', name: 'login-cliente', component: () => import('@/views/LoginClienteView.vue') },
+
+      {
+        path: 'meus-pedidos',
+        name: 'meus-pedidos',
+        component: () => import('@/views/MeusPedidosView.vue'),
+        meta: { requerAuthCliente: true },
+      },
+      {
+        path: 'meus-pedidos/:id',
+        name: 'pedido-detalhe',
+        component: () => import('@/views/PedidoDetalheView.vue'),
+        meta: { requerAuthCliente: true },
+      },
     ],
   },
 ]
@@ -50,17 +87,22 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const auth = useAuthStore()
+  const authCliente = useClienteAuthStore()
 
-  // Se a rota exige autenticação e o usuário NÃO está logado:
+  // --- Guarda do painel admin ---
   if (to.meta.requerAuth && !auth.autenticado) {
-    if (to.name !== 'login') {
-      return { name: 'login' }
-    }
+    if (to.name !== 'login') return { name: 'login' }
   }
-
-  // Se o usuário já está logado e tenta ir para a tela de login:
   if (to.name === 'login' && auth.autenticado) {
     return { name: 'dashboard' }
+  }
+
+  // --- Guarda da vitrine (cliente) ---
+  if (to.meta.requerAuthCliente && !authCliente.autenticado) {
+    return { name: 'login-cliente', query: { redirecionar: to.fullPath } }
+  }
+  if ((to.name === 'login-cliente' || to.name === 'cadastro') && authCliente.autenticado) {
+    return { name: 'home' }
   }
 })
 

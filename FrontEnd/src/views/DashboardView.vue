@@ -6,40 +6,31 @@
     <template v-else-if="dados">
       <!-- Métricas -->
       <section class="grade-metricas">
-        <StatCard
-          icone="💰" cor="azul"
-          :valor="formatarMoeda(dados.mes_atual.faturamento)"
+        <StatCard icone="mdi-cash-multiple" cor="azul" :valor="formatarMoeda(dados.mes_atual.faturamento)"
           label="Faturamento (mês)"
           :variacao="calcularVariacao(dados.mes_atual.faturamento, dados.mes_anterior.faturamento)"
-          :sub="`vs. mês anterior ${formatarMoeda(dados.mes_anterior.faturamento)}`"
-        />
-        <StatCard
-          icone="🛍️" cor="roxo"
-          :valor="dados.mes_atual.pedidos"
-          label="Pedidos (mês)"
+          :sub="`vs. mês anterior ${formatarMoeda(dados.mes_anterior.faturamento)}`" />
+
+        <StatCard icone="mdi-shopping" cor="roxo" :valor="dados.mes_atual.pedidos" label="Pedidos (mês)"
           :variacao="calcularVariacao(dados.mes_atual.pedidos, dados.mes_anterior.pedidos)"
-          :sub="`vs. mês anterior ${dados.mes_anterior.pedidos}`"
-        />
-        <StatCard
-          icone="💳" cor="laranja"
-          :valor="formatarMoeda(dados.mes_atual.ticket_medio)"
+          :sub="`vs. mês anterior ${dados.mes_anterior.pedidos}`" />
+
+        <StatCard icone="mdi-credit-card-outline" cor="laranja" :valor="formatarMoeda(dados.mes_atual.ticket_medio)"
           label="Ticket Médio"
           :variacao="calcularVariacao(dados.mes_atual.ticket_medio, dados.mes_anterior.ticket_medio)"
-          :sub="`vs. mês anterior ${formatarMoeda(dados.mes_anterior.ticket_medio)}`"
-        />
-        <StatCard
-          icone="🧑‍🤝‍🧑" cor="verde"
-          :valor="dados.mes_atual.novos_clientes"
-          label="Novos Clientes"
+          :sub="`vs. mês anterior ${formatarMoeda(dados.mes_anterior.ticket_medio)}`" />
+
+        <StatCard icone="mdi-account-group" cor="verde" :valor="dados.mes_atual.novos_clientes" label="Novos Clientes"
           :variacao="calcularVariacao(dados.mes_atual.novos_clientes, dados.mes_anterior.novos_clientes)"
-          :sub="`vs. mês anterior ${dados.mes_anterior.novos_clientes}`"
-        />
+          :sub="`vs. mês anterior ${dados.mes_anterior.novos_clientes}`" />
+
       </section>
 
       <!-- Receita + resumo do mês -->
       <section class="linha-dupla">
         <div class="card grafico-receita">
           <div class="card__cabecalho">
+            
             <div>
               <h3 class="card__titulo">Receita × Lucro</h3>
               <p class="card__subtitulo">Últimos 6 meses</p>
@@ -63,7 +54,9 @@
                 <span>{{ linha.label }}</span>
                 <strong>{{ linha.valor }}</strong>
               </div>
-              <div class="barra"><div class="barra__preenchimento" :class="linha.cor" :style="{ width: linha.pct + '%' }"></div></div>
+              <div class="barra">
+                <div class="barra__preenchimento" :class="linha.cor" :style="{ width: linha.pct + '%' }"></div>
+              </div>
             </div>
 
             <div class="resumo-mes__destaque">
@@ -94,7 +87,8 @@
           </div>
           <ul class="categorias__lista">
             <li v-for="(cat, i) in dados.categorias_mais_vendidas" :key="cat.categoria" class="categorias__item">
-              <span class="categorias__ponto" :style="{ background: coresCategorias[i % coresCategorias.length] }"></span>
+              <span class="categorias__ponto"
+                :style="{ background: coresCategorias[i % coresCategorias.length] }"></span>
               <span class="categorias__nome">{{ cat.categoria }}</span>
               <span class="categorias__valor">{{ formatarMoeda(cat.faturamento) }}</span>
               <span class="categorias__pct">{{ cat.percentual_faturamento }}%</span>
@@ -121,7 +115,11 @@
             <table class="tabela">
               <thead>
                 <tr>
-                  <th>Pedido</th><th>Data</th><th>Itens</th><th>Valor</th><th>Status</th>
+                  <th>Pedido</th>
+                  <th>Data</th>
+                  <th>Itens</th>
+                  <th>Valor</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,7 +128,9 @@
                   <td>{{ formatarData(pedido.created_at) }}</td>
                   <td>{{ pedido.itens?.length ?? 0 }} item(ns)</td>
                   <td><strong>{{ formatarMoeda(pedido.total) }}</strong></td>
-                  <td><StatusPedidoBadge :status="pedido.status" /></td>
+                  <td>
+                    <StatusPedidoBadge :status="pedido.status" />
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -140,11 +140,14 @@
             <div v-for="pedido in pedidos" :key="pedido.id" class="lista-mobile__item">
               <div style="flex:1">
                 <strong>#{{ pedido.id }}</strong>
-                <p class="pedidos-tabela__meta">{{ formatarData(pedido.created_at) }} · {{ pedido.itens?.length ?? 0 }} item(ns)</p>
+                <p class="pedidos-tabela__meta">{{ formatarData(pedido.created_at) }} · {{ pedido.itens?.length ?? 0 }}
+                  item(ns)</p>
               </div>
               <div style="text-align:right">
                 <strong>{{ formatarMoeda(pedido.total) }}</strong>
-                <div><StatusPedidoBadge :status="pedido.status" /></div>
+                <div>
+                  <StatusPedidoBadge :status="pedido.status" />
+                </div>
               </div>
             </div>
           </div>
@@ -307,48 +310,185 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.linha-dupla { display: grid; grid-template-columns: 1fr; gap: .9rem; }
-@media (min-width: 1000px) { .linha-dupla { grid-template-columns: 1.6fr 1fr; } }
-
-.grafico-receita { padding: 1.1rem; }
-.grafico-receita__corpo { margin-top: .5rem; }
-
-.resumo-mes { padding: 1.1rem; display: flex; flex-direction: column; }
-.resumo-mes__corpo { display: flex; flex-direction: column; gap: .9rem; margin-top: .4rem; }
-.resumo-mes__linha-topo { display: flex; justify-content: space-between; font-size: .78rem; margin-bottom: .35rem; }
-.resumo-mes__linha-topo span { color: var(--ink-soft); font-weight: 600; }
-.resumo-mes__linha-topo strong { color: var(--ink); }
-.resumo-mes__barra--azul { background: var(--blue-600); }
-.resumo-mes__barra--verde { background: var(--success); }
-.resumo-mes__barra--roxo { background: var(--info); }
-.resumo-mes__barra--laranja { background: #ea580c; }
-.resumo-mes__destaque {
-  margin-top: .3rem; padding-top: .9rem; border-top: 1px solid var(--line);
-  background: var(--blue-50); border-radius: var(--radius-md); padding: .9rem;
+.linha-dupla {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .9rem;
 }
-.resumo-mes__destaque p { font-size: .72rem; font-weight: 700; color: var(--blue-700); margin: 0 0 .2rem; }
-.resumo-mes__destaque strong { font-size: 1rem; color: var(--blue-700); display: block; }
-.resumo-mes__destaque span { font-size: .68rem; color: var(--blue-600); opacity: .8; }
 
-.categorias__corpo { padding: 1.1rem; display: flex; flex-direction: column; gap: 1.2rem; align-items: center; }
-.categorias__grafico { width: 100%; max-width: 220px; }
-.categorias__lista { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: .55rem; }
-.categorias__item { display: flex; align-items: center; gap: .55rem; font-size: .8rem; }
-.categorias__ponto { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.categorias__nome { flex: 1; font-weight: 600; color: var(--ink); }
-.categorias__valor { font-weight: 700; color: var(--ink); }
-.categorias__pct { color: var(--ink-faint); width: 3rem; text-align: right; }
+@media (min-width: 1000px) {
+  .linha-dupla {
+    grid-template-columns: 1.6fr 1fr;
+  }
+}
+
+.grafico-receita {
+  padding: 1.1rem;
+}
+
+.grafico-receita__corpo {
+  margin-top: .5rem;
+}
+
+.resumo-mes {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.resumo-mes__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  margin-top: .4rem;
+}
+
+.resumo-mes__linha-topo {
+  display: flex;
+  justify-content: space-between;
+  font-size: .78rem;
+  margin-bottom: .35rem;
+}
+
+.resumo-mes__linha-topo span {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.resumo-mes__linha-topo strong {
+  color: var(--ink);
+}
+
+.resumo-mes__barra--azul {
+  background: var(--blue-600);
+}
+
+.resumo-mes__barra--verde {
+  background: var(--success);
+}
+
+.resumo-mes__barra--roxo {
+  background: var(--info);
+}
+
+.resumo-mes__barra--laranja {
+  background: #ea580c;
+}
+
+.resumo-mes__destaque {
+  margin-top: .3rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--line);
+  background: var(--blue-50);
+  border-radius: var(--radius-md);
+  padding: .9rem;
+}
+
+.resumo-mes__destaque p {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--blue-700);
+  margin: 0 0 .2rem;
+}
+
+.resumo-mes__destaque strong {
+  font-size: 1rem;
+  color: var(--blue-700);
+  display: block;
+}
+
+.resumo-mes__destaque span {
+  font-size: .68rem;
+  color: var(--blue-600);
+  opacity: .8;
+}
+
+.categorias__corpo {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.categorias__grafico {
+  width: 100%;
+  max-width: 220px;
+}
+
+.categorias__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.categorias__item {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: .8rem;
+}
+
+.categorias__ponto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.categorias__nome {
+  flex: 1;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.categorias__valor {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.categorias__pct {
+  color: var(--ink-faint);
+  width: 3rem;
+  text-align: right;
+}
 
 @media (min-width: 700px) {
-  .categorias__corpo { flex-direction: row; align-items: center; }
-  .categorias__grafico { max-width: 240px; }
+  .categorias__corpo {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .categorias__grafico {
+    max-width: 240px;
+  }
 }
 
-.pedidos-tabela--mobile { display: block; }
-.pedidos-tabela--desktop { display: none; }
-.pedidos-tabela__meta { font-size: .72rem; color: var(--ink-faint); margin: .15rem 0 0; }
+.pedidos-tabela--mobile {
+  display: block;
+}
+
+.pedidos-tabela--desktop {
+  display: none;
+}
+
+.pedidos-tabela__meta {
+  font-size: .72rem;
+  color: var(--ink-faint);
+  margin: .15rem 0 0;
+}
+
 @media (min-width: 640px) {
-  .pedidos-tabela--mobile { display: none; }
-  .pedidos-tabela--desktop { display: block; }
+  .pedidos-tabela--mobile {
+    display: none;
+  }
+
+  .pedidos-tabela--desktop {
+    display: block;
+  }
 }
 </style>

@@ -29,11 +29,36 @@ const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency',
   display: flex;
   flex-direction: column;
 }
-.produto-card__imagem { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
-.produto-card__corpo { padding: 1rem; display: flex; flex-direction: column; gap: .3rem; }
-.produto-card__nome { font-family: var(--fonte-display); margin: 0; font-size: 1.05rem; }
-.produto-card__categoria { color: var(--cor-texto-suave); font-size: .8rem; }
-.produto-card__preco { font-size: 1.1rem; margin: .3rem 0; }
+
+.produto-card__imagem {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+}
+
+.produto-card__corpo {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.produto-card__nome {
+  font-family: var(--fonte-display);
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.produto-card__categoria {
+  color: var(--cor-texto-suave);
+  font-size: .8rem;
+}
+
+.produto-card__preco {
+  font-size: 1.1rem;
+  margin: .3rem 0;
+}
+
 .produto-card__botao {
   background: var(--cor-primaria);
   color: #fff;
@@ -43,5 +68,8 @@ const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency',
   font-weight: 600;
   cursor: pointer;
 }
-.produto-card__botao:hover { background: var(--cor-primaria-hover); }
+
+.produto-card__botao:hover {
+  background: var(--cor-primaria-hover);
+}
 </style>

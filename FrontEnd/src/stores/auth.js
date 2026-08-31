@@ -19,6 +19,10 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('admin_token') !== 'undefined' ? localStorage.getItem('admin_token') : null,
     usuario: safeJSONParse('admin_usuario'),
+    // Preenchido só durante a etapa intermediária do login com 2FA —
+    // nunca persistido, some assim que o token final é obtido ou a
+    // página é recarregada.
+    usuarioIdPendente2fa: null,
   }),
 
   getters: {
@@ -26,19 +30,46 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
+    /**
+     * Se a conta tiver autenticação em 2 fatores ligada, o backend não
+     * devolve token aqui — devolve { requer_2fa: true, usuario_id }.
+     * Retorna esse resultado pro componente decidir se mostra a tela de
+     * "digite o código" (ver LoginView.vue).
+     */
     async login(email, senha) {
       const { data } = await api.post('/auth/login', { email, senha })
 
-      this.token = data.token
-      this.usuario = data.usuario
+      if (data.requer_2fa) {
+        this.usuarioIdPendente2fa = data.usuario_id
+        return { requer2fa: true }
+      }
 
-      localStorage.setItem('admin_token', data.token)
-      localStorage.setItem('admin_usuario', JSON.stringify(data.usuario))
+      this.definirSessao(data.token, data.usuario)
+      return { requer2fa: false }
+    },
+
+    async verificarDoisFatores(codigo) {
+      const { data } = await api.post('/auth/verificar-2fa', {
+        usuario_id: this.usuarioIdPendente2fa,
+        codigo,
+      })
+
+      this.usuarioIdPendente2fa = null
+      this.definirSessao(data.token, data.usuario)
+    },
+
+    definirSessao(token, usuario) {
+      this.token = token
+      this.usuario = usuario
+
+      localStorage.setItem('admin_token', token)
+      localStorage.setItem('admin_usuario', JSON.stringify(usuario))
     },
 
     logout() {
       this.token = null
       this.usuario = null
+      this.usuarioIdPendente2fa = null
       localStorage.removeItem('admin_token')
       localStorage.removeItem('admin_usuario')
     },

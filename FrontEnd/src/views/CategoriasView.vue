@@ -5,7 +5,8 @@
 
     <section class="painel">
       <h2 class="painel__titulo">
-        {{ categoriaPaiSelecionada ? `Nova subcategoria em "${categoriaPaiSelecionada.nome}"` : 'Nova categoria principal' }}
+        {{ categoriaPaiSelecionada ? `Nova subcategoria em "${categoriaPaiSelecionada.nome}"` :
+          'Nova categoria principal' }}
       </h2>
 
       <form class="form" @submit.prevent="criar">
@@ -49,13 +50,8 @@
       <div v-else-if="arvore.length === 0" class="vazio">Nenhuma categoria cadastrada ainda.</div>
 
       <ul v-else class="lista-arvore">
-        <CategoriaArvoreItem
-          v-for="cat in arvore"
-          :key="cat.id"
-          :categoria="cat"
-          @adicionar-filha="prepararSubcategoria"
-          @atualizar="carregar"
-        />
+        <CategoriaArvoreItem v-for="cat in arvore" :key="cat.id" :categoria="cat"
+          @adicionar-filha="prepararSubcategoria" @atualizar="carregar" />
       </ul>
     </section>
   </div>
@@ -151,13 +147,58 @@ onMounted(carregar)
 </script>
 
 <style scoped>
-.form { display: flex; flex-direction: column; gap: 1rem; }
-.form label { display: flex; flex-direction: column; gap: .4rem; font-size: .85rem; color: var(--ink-soft); }
-select { background: #fff; }
-.acoes { display: flex; gap: .75rem; margin-top: .25rem; }
-.acoes .btn { flex: 1; }
-.painel__titulo { font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin: 0 0 1rem; font-weight: 700; }
-.lista-arvore { list-style: none; padding: 0; margin: 0; }
-.vazio { color: var(--ink-soft); text-align: center; padding: 1.5rem 0; }
-.pagina__erro { color: var(--danger); font-size: .85rem; margin: 0; }
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  font-size: .85rem;
+  color: var(--ink-soft);
+}
+
+select {
+  background: #fff;
+}
+
+.acoes {
+  display: flex;
+  gap: .75rem;
+  margin-top: .25rem;
+}
+
+.acoes .btn {
+  flex: 1;
+}
+
+.painel__titulo {
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+  font-weight: 700;
+}
+
+.lista-arvore {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vazio {
+  color: var(--ink-soft);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.pagina__erro {
+  color: var(--danger);
+  font-size: .85rem;
+  margin: 0;
+}
 </style>

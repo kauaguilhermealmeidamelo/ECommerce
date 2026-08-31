@@ -1,24 +1,14 @@
 <template>
   <div class="carrossel">
     <div class="carrossel__viewport" ref="viewport" @scroll="atualizarIndice">
-      <img
-        v-for="(imagem, i) in imagensExibidas"
-        :key="imagem.id ?? i"
-        :src="imagem.url"
-        :alt="alt"
-        class="carrossel__imagem"
-      />
+      <img v-for="(imagem, i) in imagensExibidas" :key="imagem.id ?? i" :src="imagem.url" :alt="alt"
+        class="carrossel__imagem" />
     </div>
 
     <div v-if="imagensExibidas.length > 1" class="carrossel__pontos">
-      <button
-        v-for="(imagem, i) in imagensExibidas"
-        :key="'ponto-' + (imagem.id ?? i)"
-        class="carrossel__ponto"
-        :class="{ 'carrossel__ponto--ativo': i === indiceAtual }"
-        @click="irPara(i)"
-        :aria-label="`Ver imagem ${i + 1}`"
-      ></button>
+      <button v-for="(imagem, i) in imagensExibidas" :key="'ponto-' + (imagem.id ?? i)" class="carrossel__ponto"
+        :class="{ 'carrossel__ponto--ativo': i === indiceAtual }" @click="irPara(i)"
+        :aria-label="`Ver imagem ${i + 1}`"></button>
     </div>
   </div>
 </template>
@@ -55,14 +45,21 @@ function atualizarIndice() {
 </script>
 
 <style scoped>
-.carrossel { position: relative; }
+.carrossel {
+  position: relative;
+}
+
 .carrossel__viewport {
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
-.carrossel__viewport::-webkit-scrollbar { display: none; }
+
+.carrossel__viewport::-webkit-scrollbar {
+  display: none;
+}
+
 .carrossel__imagem {
   flex: 0 0 100%;
   width: 100%;
@@ -70,6 +67,7 @@ function atualizarIndice() {
   object-fit: cover;
   scroll-snap-align: start;
 }
+
 .carrossel__pontos {
   position: absolute;
   bottom: .75rem;
@@ -78,9 +76,20 @@ function atualizarIndice() {
   display: flex;
   gap: .4rem;
 }
+
 .carrossel__ponto {
-  width: 7px; height: 7px; border-radius: 50%; border: none;
-  background: rgba(255,255,255,.6); padding: 0; cursor: pointer;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, .6);
+  padding: 0;
+  cursor: pointer;
 }
-.carrossel__ponto--ativo { background: #fff; width: 9px; height: 9px; }
+
+.carrossel__ponto--ativo {
+  background: #fff;
+  width: 9px;
+  height: 9px;
+}
 </style>

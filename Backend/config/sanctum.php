@@ -11,7 +11,10 @@ return [
 
     'guard' => ['web'],
 
-    'expiration' => null,
+    // Antes: null (token nunca expirava — se um token vazasse, ficaria
+    // válido pra sempre). Agora expira em 8h; o interceptor de resposta
+    // do front (services/api.js) já trata 401 redirecionando pro login.
+    'expiration' => (int) env('SANCTUM_TOKEN_EXPIRATION_MINUTOS', 480),
 
     'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
 

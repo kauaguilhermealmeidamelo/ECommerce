@@ -1,7 +1,8 @@
 <template>
   <div class="pagina">
     <h1 class="font-display pagina__titulo">{{ modoEdicao ? 'Editar produto' : 'Novo produto' }}</h1>
-    <p class="pagina__subtitulo">{{ modoEdicao ? 'Atualize os dados da peça.' : 'Cadastre uma nova peça na sua loja.' }}</p>
+    <p class="pagina__subtitulo">{{ modoEdicao ? 'Atualize os dados da peça.' : 'Cadastre uma nova peça na sua loja.' }}
+    </p>
 
     <div v-if="carregandoProduto">Carregando...</div>
 
@@ -15,12 +16,7 @@
         Categoria
         <select v-model="produto.categoria_id" required>
           <option disabled value="">Selecione...</option>
-          <option
-            v-for="cat in categoriasFlat"
-            :key="cat.id"
-            :value="cat.id"
-            :disabled="!cat.eh_folha"
-          >
+          <option v-for="cat in categoriasFlat" :key="cat.id" :value="cat.id" :disabled="!cat.eh_folha">
             {{ '—'.repeat(cat.nivel) }} {{ cat.nome }}{{ !cat.eh_folha ? ' (selecione uma subcategoria)' : '' }}
           </option>
         </select>
@@ -274,41 +270,167 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.form { display: flex; flex-direction: column; gap: 1rem; }
-.form label { display: flex; flex-direction: column; gap: .4rem; font-size: .85rem; color: var(--ink-soft); }
-textarea { font-family: inherit; border: 1px solid var(--line); border-radius: 8px; padding: .6rem .75rem; font-size: .9rem; resize: vertical; }
-select { background: #fff; }
-.aviso-categorias { color: var(--danger); font-size: .78rem; }
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
-.imagens__label { font-weight: 600; font-size: .85rem; display: block; }
-.imagens__ajuda { font-size: .78rem; color: var(--ink-soft); margin: .1rem 0 .6rem; }
-.imagens__grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
-.imagens__item { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--icon-bg); }
-.imagens__item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  font-size: .85rem;
+  color: var(--ink-soft);
+}
+
+textarea {
+  font-family: inherit;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: .6rem .75rem;
+  font-size: .9rem;
+  resize: vertical;
+}
+
+select {
+  background: #fff;
+}
+
+.aviso-categorias {
+  color: var(--danger);
+  font-size: .78rem;
+}
+
+.imagens__label {
+  font-weight: 600;
+  font-size: .85rem;
+  display: block;
+}
+
+.imagens__ajuda {
+  font-size: .78rem;
+  color: var(--ink-soft);
+  margin: .1rem 0 .6rem;
+}
+
+.imagens__grade {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .6rem;
+}
+
+.imagens__item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--icon-bg);
+}
+
+.imagens__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .imagens__remover {
-  position: absolute; top: 4px; right: 4px;
-  width: 20px; height: 20px; border-radius: 50%;
-  border: none; background: rgba(0,0,0,.6); color: #fff;
-  font-size: .9rem; line-height: 1; cursor: pointer;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, .6);
+  color: #fff;
+  font-size: .9rem;
+  line-height: 1;
+  cursor: pointer;
 }
+
 .imagens__adicionar {
-  aspect-ratio: 1; border: 1px dashed var(--line); border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: .78rem; color: var(--ink-soft); cursor: pointer;
+  aspect-ratio: 1;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  color: var(--ink-soft);
+  cursor: pointer;
 }
 
-.toggle { flex-direction: row !important; align-items: center; gap: .5rem !important; }
-.toggle input { width: auto; accent-color: var(--navy); }
+.toggle {
+  flex-direction: row !important;
+  align-items: center;
+  gap: .5rem !important;
+}
 
-.variacoes { border: 1px solid var(--line); border-radius: 10px; padding: .9rem; }
-.variacoes__label { font-weight: 600; font-size: .85rem; display: block; margin-bottom: .2rem; }
-.variacoes__ajuda { font-size: .78rem; color: var(--ink-soft); margin: 0 0 .8rem; }
-.variacoes__grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
-.variacoes__item { display: flex; flex-direction: column; gap: .3rem; font-size: .8rem; color: var(--ink-soft); }
-.variacoes__item span { font-weight: 700; color: var(--ink); }
-.variacoes__total { margin: .8rem 0 0; font-size: .82rem; font-weight: 600; text-align: right; }
+.toggle input {
+  width: auto;
+  accent-color: var(--navy);
+}
 
-.acoes { display: flex; gap: .75rem; margin-top: .5rem; }
-.acoes .btn { flex: 1; }
-.pagina__erro { color: var(--danger); font-size: .85rem; margin: 0; }
+.variacoes {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .9rem;
+}
+
+.variacoes__label {
+  font-weight: 600;
+  font-size: .85rem;
+  display: block;
+  margin-bottom: .2rem;
+}
+
+.variacoes__ajuda {
+  font-size: .78rem;
+  color: var(--ink-soft);
+  margin: 0 0 .8rem;
+}
+
+.variacoes__grade {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .6rem;
+}
+
+.variacoes__item {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  font-size: .8rem;
+  color: var(--ink-soft);
+}
+
+.variacoes__item span {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.variacoes__total {
+  margin: .8rem 0 0;
+  font-size: .82rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.acoes {
+  display: flex;
+  gap: .75rem;
+  margin-top: .5rem;
+}
+
+.acoes .btn {
+  flex: 1;
+}
+
+.pagina__erro {
+  color: var(--danger);
+  font-size: .85rem;
+  margin: 0;
+}
 </style>

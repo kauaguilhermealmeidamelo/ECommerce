@@ -57,9 +57,37 @@ async function entrar() {
   margin: 4rem auto;
   padding: 0 1.5rem;
 }
-.login__titulo { font-size: 1.8rem; margin: 0 0 .3rem; font-weight: 800; color: var(--ink); }
-.login__subtitulo { color: var(--ink-soft); margin: 0 0 1.5rem; font-size: .92rem; }
-.login__form { display: flex; flex-direction: column; gap: 1rem; }
-.login__form label { display: flex; flex-direction: column; gap: .4rem; font-size: .85rem; color: var(--ink-soft); }
-.login__erro { color: var(--danger); font-size: .85rem; margin: 0; }
+
+.login__titulo {
+  font-size: 1.8rem;
+  margin: 0 0 .3rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.login__subtitulo {
+  color: var(--ink-soft);
+  margin: 0 0 1.5rem;
+  font-size: .92rem;
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login__form label {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  font-size: .85rem;
+  color: var(--ink-soft);
+}
+
+.login__erro {
+  color: var(--danger);
+  font-size: .85rem;
+  margin: 0;
+}
 </style>
