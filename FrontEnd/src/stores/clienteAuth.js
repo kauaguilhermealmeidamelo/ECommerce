@@ -1,60 +1,41 @@
 import { defineStore } from "pinia";
-import apiLoja from "@/services/apiLoja";
+import { ref, computed } from "vue";
+import axios from "axios"; // ou sua instância configurada do axios
 
-function safeJSONParse(key) {
-  const item = localStorage.getItem(key);
-  if (!item || item === "undefined" || item === "null") return null;
-  try {
-    return JSON.parse(item);
-  } catch (e) {
-    localStorage.removeItem(key);
-    return null;
+export const useClienteAuthStore = defineStore("clienteAuth", () => {
+  // 1. Inicializa lendo direto do localStorage para não perder a sessão
+  const token = ref(localStorage.getItem("auth_token") || null);
+  const usuario = ref(null);
+
+  const autenticado = computed(() => !!token.value);
+
+  // Função centralizada para definir o token e atualizar o Axios
+  function definirToken(novoToken) {
+    token.value = novoToken;
+    if (novoToken) {
+      localStorage.setItem("auth_token", novoToken);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${novoToken}`;
+    } else {
+      localStorage.removeItem("auth_token");
+      delete axios.defaults.headers.common["Authorization"];
+    }
   }
-}
 
-export const useClienteAuthStore = defineStore("clienteAuth", {
-  state: () => ({
-    token:
-      localStorage.getItem("cliente_token") !== "undefined"
-        ? localStorage.getItem("cliente_token")
-        : null,
-    usuario: safeJSONParse("cliente_usuario"),
-  }),
+  // Se já houver token salvo ao carregar a página, já injeta no Axios
+  if (token.value) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token.value}`;
+  }
 
-  getters: {
-    autenticado: (state) => !!state.token && state.token !== "undefined",
-    primeiroNome: (state) => state.usuario?.name?.split(" ")[0] ?? "",
-  },
+  function logout() {
+    definirToken(null);
+    usuario.value = null;
+  }
 
-  actions: {
-    async login(email, senha) {
-      const { data } = await apiLoja.post("/auth/login", { email, senha });
-      this.definirSessao(data);
-    },
-
-    async registrar({ name, email, senha, senha_confirmation, telefone }) {
-      const { data } = await apiLoja.post("/auth/registro", {
-        name,
-        email,
-        senha,
-        senha_confirmation,
-        telefone,
-      });
-      this.definirSessao(data);
-    },
-
-    definirSessao(data) {
-      this.token = data.token;
-      this.usuario = data.usuario;
-      localStorage.setItem("cliente_token", data.token);
-      localStorage.setItem("cliente_usuario", JSON.stringify(data.usuario));
-    },
-
-    logout() {
-      this.token = null;
-      this.usuario = null;
-      localStorage.removeItem("cliente_token");
-      localStorage.removeItem("cliente_usuario");
-    },
-  },
+  return {
+    token,
+    usuario,
+    autenticado,
+    definirToken,
+    logout,
+  };
 });

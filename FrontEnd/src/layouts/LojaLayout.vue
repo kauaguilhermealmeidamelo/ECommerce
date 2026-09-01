@@ -14,26 +14,28 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useClienteAuthStore } from "@/stores/clienteAuth";
+import { useLojaStore } from "@/stores/lojaStore";
 import CabecalhoLoja from "@/components/layout/CabecalhoLoja.vue";
 import RodapeLoja from "@/components/layout/RodapeLoja.vue";
 import NavInferior from "@/components/layout/NavInferior.vue";
 import NavPilula from "@/components/layout/NavPilula.vue";
 
 const auth = useClienteAuthStore();
+const lojaStore = useLojaStore();
 const cabecalhoRef = ref(null);
 
 // 4 itens fixos — mesma ideia do painel admin (poucos itens, sempre
 // visíveis). "Conta" muda de rota dependendo se o cliente já está logado.
 const itensNav = computed(() => [
-  { rota: "home", label: "Início", icone: "🏠" },
-  { rota: "catalogo", label: "Catálogo", icone: "🛍️" },
-  { rota: "carrinho", label: "Carrinho", icone: "🛒" },
+  { rota: "home", label: "Início", icone: "mdi-home" },
+  { rota: "catalogo", label: "Catálogo", icone: "mdi-storefront" },
+  { rota: "carrinho", label: "Carrinho", icone: "mdi-cart" },
   {
     rota: auth.autenticado ? "meus-pedidos" : "login-cliente",
     label: "Conta",
-    icone: "👤",
+    icone: "mdi-account",
   },
 ]);
 
@@ -43,6 +45,11 @@ const itensNav = computed(() => [
 function atualizarCarrinho() {
   cabecalhoRef.value?.carregarQuantidadeCarrinho();
 }
+
+onMounted(() => {
+  // Dispara o carregamento dos dados da loja (nome, logo, etc.) assim que o layout abre
+  lojaStore.carregarLoja();
+});
 
 defineExpose({ atualizarCarrinho });
 </script>

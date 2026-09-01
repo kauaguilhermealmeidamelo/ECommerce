@@ -7,7 +7,7 @@
       class="pilula__item"
       :class="{ 'pilula__item--ativo': rotaAtiva === item.rota }"
     >
-      <span class="pilula__icone">{{ item.icone }}</span>
+      <v-icon class="pilula__icone">{{ item.icone }}</v-icon>
       <span class="pilula__label">{{ item.label }}</span>
       <span v-if="item.contador" class="pilula__contador">{{
         item.contador
@@ -29,7 +29,6 @@ const rotaAtiva = computed(() => route.name);
 </script>
 
 <style scoped>
-/* Idêntico em estrutura ao DesktopNav.vue do painel admin. */
 .pilula {
   display: none;
   position: fixed;

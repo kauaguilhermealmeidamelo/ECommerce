@@ -7,7 +7,7 @@
       class="navbar__item"
       :class="{ 'navbar__item--ativo': rotaAtiva === item.rota }"
     >
-      <span class="navbar__icone">{{ item.icone }}</span>
+      <v-icon class="navbar__icone">{{ item.icone }}</v-icon>
       <span class="navbar__label">{{ item.label }}</span>
       <span v-if="item.contador" class="navbar__contador">{{
         item.contador
@@ -29,8 +29,6 @@ const rotaAtiva = computed(() => route.name);
 </script>
 
 <style scoped>
-/* Idêntico em estrutura ao BottomNav.vue do painel admin — só troca as
-   cores fixas (--blue-600 etc) pelas CSS vars do tema por cliente. */
 .navbar--mobile {
   position: fixed;
   bottom: 0;

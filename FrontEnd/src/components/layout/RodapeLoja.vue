@@ -18,8 +18,9 @@
               rel="noopener"
               aria-label="Instagram"
               class="rodape__rede"
-              >IG</a
             >
+              <v-icon>mdi-instagram</v-icon>
+            </a>
             <a
               v-if="loja.facebook_url"
               :href="loja.facebook_url"
@@ -27,8 +28,9 @@
               rel="noopener"
               aria-label="Facebook"
               class="rodape__rede"
-              >FB</a
             >
+              <v-icon>mdi-facebook</v-icon>
+            </a>
             <a
               v-if="loja.tiktok_url"
               :href="loja.tiktok_url"
@@ -36,8 +38,9 @@
               rel="noopener"
               aria-label="TikTok"
               class="rodape__rede"
-              >TT</a
             >
+              <v-icon>mdi-tiktok</v-icon>
+            </a>
             <a
               v-if="loja.whatsapp"
               :href="linkWhatsapp"
@@ -45,8 +48,9 @@
               rel="noopener"
               aria-label="WhatsApp"
               class="rodape__rede"
-              >WA</a
             >
+              <v-icon>mdi-whatsapp</v-icon>
+            </a>
           </div>
         </div>
 
@@ -70,14 +74,20 @@
         <div class="rodape__coluna">
           <h4>Contato</h4>
           <ul>
-            <li v-if="loja?.telefone">📞 {{ loja.telefone }}</li>
-            <li v-if="loja?.email_contato">✉️ {{ loja.email_contato }}</li>
-            <li v-if="loja?.whatsapp">
-              <a :href="linkWhatsapp" target="_blank" rel="noopener"
-                >💬 Fale no WhatsApp</a
-              >
+            <li v-if="loja?.telefone" class="rodape__contato-item">
+              <v-icon>mdi-phone</v-icon> {{ loja.telefone }}
             </li>
-            <li v-if="enderecoCompleto">📍 {{ enderecoCompleto }}</li>
+            <li v-if="loja?.email_contato" class="rodape__contato-item">
+              <v-icon>mdi-email-outline</v-icon> {{ loja.email_contato }}
+            </li>
+            <li v-if="loja?.whatsapp">
+              <a :href="linkWhatsapp" target="_blank" rel="noopener" class="rodape__contato-link">
+                <v-icon>mdi-whatsapp</v-icon> Fale no WhatsApp
+              </a>
+            </li>
+            <li v-if="enderecoCompleto" class="rodape__contato-item">
+              <v-icon>mdi-map-marker</v-icon> {{ enderecoCompleto }}
+            </li>
           </ul>
         </div>
       </div>
@@ -85,7 +95,7 @@
       <div class="rodape__base">
         <p>© {{ anoAtual }} {{ tema.nome }}. Todos os direitos reservados.</p>
         <!-- Crédito do criador do sistema — mantido conforme contrato de
-             licenciamento do template, não é editável pelo tema do cliente. -->
+            licenciamento do template, não é editável pelo tema do cliente. -->
         <p class="rodape__credito">
           Loja virtual desenvolvida por
           <a href="https://github.com/kauag" target="_blank" rel="noopener"
@@ -187,8 +197,6 @@ onMounted(carregarLoja);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
-  font-weight: 700;
   text-decoration: none;
 }
 .rodape__rede:hover {
@@ -217,6 +225,13 @@ onMounted(carregarLoja);
 }
 .rodape__coluna a:hover {
   color: #fff;
+}
+
+.rodape__contato-item,
+.rodape__contato-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .rodape__base {

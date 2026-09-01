@@ -2,12 +2,14 @@
   <header class="topo">
     <router-link :to="{ name: 'home' }" class="topo__marca">
       <img
-        v-if="tema.logo"
-        :src="tema.logo"
-        :alt="tema.nome"
+        v-if="lojaStore.dadosLoja?.logo || tema.logo"
+        :src="lojaStore.dadosLoja?.logo || tema.logo"
+        :alt="lojaStore.dadosLoja?.nome || tema.nome"
         class="topo__logo-img"
       />
-      <span v-else class="topo__logo-texto">{{ tema.nome }}</span>
+      <span v-else class="topo__logo-texto">
+        {{ lojaStore.dadosLoja?.nome || tema.nome }}
+      </span>
     </router-link>
 
     <div class="busca topo__busca">
@@ -34,7 +36,7 @@
         @click="busca = ''"
         aria-label="Limpar busca"
       >
-        ✕
+        <v-icon>mdi-close</v-icon>
       </button>
     </div>
 
@@ -44,7 +46,7 @@
         class="topo__icone-botao"
         aria-label="Carrinho"
       >
-        🛒
+        <v-icon>mdi-cart-outline</v-icon>
         <span v-if="quantidadeCarrinho > 0" class="topo__contador">{{
           quantidadeCarrinho
         }}</span>
@@ -52,9 +54,14 @@
 
       <div class="topo__conta">
         <button class="topo__usuario" @click="menuAberto = !menuAberto">
-          <span class="avatar">{{ auth.autenticado ? iniciais : "👤" }}</span>
+          <span class="avatar">
+            <v-icon v-if="!auth.autenticado || !nomeCompletoUsuario"
+              >mdi-account</v-icon
+            >
+            <span v-else>{{ iniciais }}</span>
+          </span>
           <span class="topo__usuario-nome">{{
-            auth.autenticado ? auth.primeiroNome : "Entrar"
+            auth.autenticado ? auth.primeiroNome || "Minha Conta" : "Entrar"
           }}</span>
         </button>
 
@@ -67,21 +74,26 @@
             <router-link
               :to="{ name: 'meus-pedidos' }"
               class="topo__dropdown-item-link"
-              >📦 Meus pedidos</router-link
             >
-            <button class="topo__dropdown-sair" @click="sair">🚪 Sair</button>
+              <v-icon>mdi-package-variant-closed</v-icon> Meus pedidos
+            </router-link>
+            <button class="topo__dropdown-sair" @click="sair">
+              <v-icon>mdi-logout</v-icon> Sair
+            </button>
           </template>
           <template v-else>
             <router-link
               :to="{ name: 'login-cliente' }"
               class="topo__dropdown-item-link"
-              >Entrar</router-link
             >
+              Entrar
+            </router-link>
             <router-link
               :to="{ name: 'cadastro' }"
               class="topo__dropdown-item-link"
-              >Criar conta</router-link
             >
+              Criar conta
+            </router-link>
           </template>
         </div>
       </div>
@@ -94,17 +106,24 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { tema } from "@/theme/tema";
 import { useClienteAuthStore } from "@/stores/clienteAuth";
+import { useLojaStore } from "@/stores/lojaStore";
 import apiLoja from "@/services/apiLoja";
 
 const router = useRouter();
 const auth = useClienteAuthStore();
+const lojaStore = useLojaStore();
 
 const busca = ref("");
 const menuAberto = ref(false);
 const quantidadeCarrinho = ref(0);
 
+const nomeCompletoUsuario = computed(
+  () => auth.usuario?.name || auth.usuario?.nome || "",
+);
+
 const iniciais = computed(() => {
-  const nome = auth.usuario?.name ?? "?";
+  const nome = nomeCompletoUsuario.value;
+  if (!nome) return "";
   return nome
     .trim()
     .split(/\s+/)
@@ -124,7 +143,7 @@ function sair() {
   router.push({ name: "home" });
 }
 
-async function carregarQuantidadeCarrinho() {
+async function carregarCarrinho() {
   try {
     const { data } = await apiLoja.get("/carrinho");
     quantidadeCarrinho.value = (data.data?.itens ?? []).reduce(
@@ -136,8 +155,12 @@ async function carregarQuantidadeCarrinho() {
   }
 }
 
-defineExpose({ carregarQuantidadeCarrinho });
-onMounted(carregarQuantidadeCarrinho);
+defineExpose({ carregarQuantidadeCarrinho: carregarCarrinho });
+
+onMounted(() => {
+  carregarCarrinho();
+  lojaStore.carregarLoja(); // Sincroniza em segundo plano com a API
+});
 </script>
 
 <style scoped>
@@ -198,6 +221,8 @@ onMounted(carregarQuantidadeCarrinho);
   background: none;
   color: var(--cor-texto-suave);
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 .topo__busca {
   flex: 1;
@@ -221,6 +246,9 @@ onMounted(carregarQuantidadeCarrinho);
   font-size: 1.05rem;
   line-height: 1;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .topo__icone-botao:hover {
   background: var(--cor-fundo);
@@ -298,6 +326,9 @@ onMounted(carregarQuantidadeCarrinho);
   color: var(--cor-texto);
   text-decoration: none;
   border-bottom: 1px solid var(--cor-linha);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .topo__dropdown-item-link:last-child {
   border-bottom: none;
@@ -314,6 +345,10 @@ onMounted(carregarQuantidadeCarrinho);
   font-weight: 600;
   color: #dc2626;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
 }
 .topo__dropdown-sair:hover {
   background: #fef2f2;
