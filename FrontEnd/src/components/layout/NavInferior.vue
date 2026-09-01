@@ -9,21 +9,23 @@
     >
       <span class="navbar__icone">{{ item.icone }}</span>
       <span class="navbar__label">{{ item.label }}</span>
-      <span v-if="item.contador" class="navbar__contador">{{ item.contador }}</span>
+      <span v-if="item.contador" class="navbar__contador">{{
+        item.contador
+      }}</span>
     </router-link>
   </nav>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 
 defineProps({
   itens: { type: Array, required: true },
-})
+});
 
-const route = useRoute()
-const rotaAtiva = computed(() => route.name)
+const route = useRoute();
+const rotaAtiva = computed(() => route.name);
 </script>
 
 <style scoped>
@@ -44,27 +46,54 @@ const rotaAtiva = computed(() => route.name)
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .2rem;
-  padding: .55rem 0 .8rem;
+  gap: 0.2rem;
+  padding: 0.55rem 0 0.8rem;
   position: relative;
   color: var(--cor-texto-suave);
   text-decoration: none;
 }
-.navbar__item--ativo { color: var(--cor-primaria); }
-.navbar__item--ativo::before {
-  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 22px; height: 2px; background: var(--cor-primaria); border-radius: 999px;
+.navbar__item--ativo {
+  color: var(--cor-primaria);
 }
-.navbar__icone { font-size: 1.1rem; line-height: 1; }
-.navbar__label { font-size: .62rem; font-weight: 700; }
+.navbar__item--ativo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 2px;
+  background: var(--cor-primaria);
+  border-radius: 999px;
+}
+.navbar__icone {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.navbar__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+}
 .navbar__contador {
-  position: absolute; top: 4px; right: 22%;
-  background: var(--cor-primaria); color: #fff; font-size: .55rem; font-weight: 700;
-  min-width: 14px; height: 14px; border-radius: 999px;
-  display: flex; align-items: center; justify-content: center; padding: 0 .2rem;
+  position: absolute;
+  top: 4px;
+  right: 22%;
+  background: var(--cor-primaria);
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.2rem;
 }
 
 @media (min-width: 768px) {
-  .navbar--mobile { display: none; }
+  .navbar--mobile {
+    display: none;
+  }
 }
 </style>

@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class CarrinhoController extends Controller
 {
-    public function __construct(private readonly CarrinhoService $carrinhoService)
-    {
-    }
+    public function __construct(private readonly CarrinhoService $carrinhoService) {}
 
     public function mostrar(Request $request): JsonResponse
     {
