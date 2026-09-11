@@ -1,5 +1,5 @@
 <template>
-  <div class="pagina">
+  <section class="pagina">
     <h1 class="font-display pagina__titulo">Configurações</h1>
     <p class="pagina__subtitulo">Dados da loja, vendas e entregas.</p>
 
@@ -103,105 +103,26 @@
     </button>
 
     <p v-if="mensagem" class="mensagem">{{ mensagem }}</p>
-  </div>
+  </section>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import api from '@/services/api'
+<script setup lang="ts">
+import { useEntregasViewModel } from '@/viewmodels/useEntregasViewModel'
 
-const config = ref({
-  retirada_ativa: true,
-  entrega_local_ativa: false,
-  transportadora_ativa: false,
-  token_melhor_envio: '',
-})
-
-const zonas = ref([])
-const salvando = ref(false)
-const mensagem = ref(null)
-
-const loja = ref({ nome: '', telefone: '', email_contato: '', cep: '', endereco: '', numero: '', bairro: '', cidade: '', uf: '' })
-const salvandoLoja = ref(false)
-
-const configLoja = ref({ produto_expira_apos_venda: false })
-const salvandoConfigLoja = ref(false)
-
-async function carregarLoja() {
-  try {
-    const { data } = await api.get('/admin/loja')
-    loja.value = { ...loja.value, ...data.data }
-  } catch (e) {
-    // primeira execução, ainda sem registro — segue com os padrões acima
-  }
-}
-
-async function salvarLoja() {
-  salvandoLoja.value = true
-  try {
-    await api.put('/admin/loja', loja.value)
-    mensagem.value = 'Dados da loja salvos.'
-  } catch (e) {
-    mensagem.value = 'Não foi possível salvar os dados da loja.'
-  } finally {
-    salvandoLoja.value = false
-  }
-}
-
-async function carregarConfigLoja() {
-  try {
-    const { data } = await api.get('/admin/configuracoes-loja')
-    configLoja.value = { ...configLoja.value, ...data.data }
-  } catch (e) {
-    // segue com o padrão (desativado)
-  }
-}
-
-async function salvarConfigLoja() {
-  salvandoConfigLoja.value = true
-  try {
-    await api.put('/admin/configuracoes-loja', configLoja.value)
-    mensagem.value = 'Configuração de vendas salva.'
-  } catch (e) {
-    mensagem.value = 'Não foi possível salvar essa configuração.'
-  } finally {
-    salvandoConfigLoja.value = false
-  }
-}
-
-function novaZona() {
-  zonas.value.push({ cep_inicial: '', cep_final: '', valor: 0, prazo_dias: 1 })
-}
-
-async function carregar() {
-  try {
-    const { data } = await api.get('/admin/entregas/configuracao')
-    config.value = { ...config.value, ...data.data.config }
-    zonas.value = data.data.zonas ?? []
-  } catch (e) {
-    // Endpoint ainda não implementado no backend — tela funciona com os padrões acima.
-  }
-}
-
-async function salvar() {
-  salvando.value = true
-  mensagem.value = null
-
-  try {
-    await api.put('/admin/entregas/configuracao', { config: config.value, zonas: zonas.value })
-    mensagem.value = 'Configurações salvas.'
-  } catch (e) {
-    mensagem.value = 'Não foi possível salvar agora.'
-  } finally {
-    salvando.value = false
-  }
-}
-
-onMounted(() => {
-  carregar()
-  carregarLoja()
-  carregarConfigLoja()
-})
+const {
+  config,
+  zonas,
+  salvando,
+  mensagem,
+  loja,
+  salvandoLoja,
+  configLoja,
+  salvandoConfigLoja,
+  salvarLoja,
+  salvarConfigLoja,
+  novaZona,
+  salvar,
+} = useEntregasViewModel()
 </script>
 
 <style scoped>

@@ -1,0 +1,15 @@
+// src/services/produto.service.ts
+import { apiClient } from './http/apiClient'
+import type { Produto, NovoProdutoPayload } from '@/types/produto.types'
+
+export const produtoService = {
+  async listar(categoriaId?: number): Promise<Produto[]> {
+    const { data } = await apiClient.get('/admin/produtos', { params: { categoria_id: categoriaId } })
+    return data.data
+  },
+
+  async criar(payload: NovoProdutoPayload): Promise<Produto> {
+    const { data } = await apiClient.post('/admin/produtos', payload)
+    return data.data
+  }
+}

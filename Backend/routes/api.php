@@ -1,31 +1,39 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CarrinhoController;
-use App\Http\Controllers\Api\CategoriaController;
-use App\Http\Controllers\Api\CheckoutController;
-use App\Http\Controllers\Api\ClienteController;
-use App\Http\Controllers\Api\ClientePedidoController;
-use App\Http\Controllers\Api\ConfiguracaoLojaController;
-use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\EntregaController;
-use App\Http\Controllers\Api\EnvioController;
-use App\Http\Controllers\Api\InformacaoLojaController;
-use App\Http\Controllers\Api\PedidoController;
-use App\Http\Controllers\Api\ProdutoController;
-use App\Http\Controllers\Api\VisitaController;
-use App\Http\Controllers\Api\WebhookMercadoPagoController;
+use App\Infrastructure\Http\Controllers\Api\AuthController;
+use App\Infrastructure\Http\Controllers\Api\CarrinhoController;
+use App\Infrastructure\Http\Controllers\Api\CategoriaController;
+use App\Infrastructure\Http\Controllers\Api\CheckoutController;
+use App\Infrastructure\Http\Controllers\Api\ClienteController;
+use App\Infrastructure\Http\Controllers\Api\ClientePedidoController;
+use App\Infrastructure\Http\Controllers\Api\ConfiguracaoLojaController;
+use App\Infrastructure\Http\Controllers\Api\DashboardController;
+use App\Infrastructure\Http\Controllers\Api\EntregaController;
+use App\Infrastructure\Http\Controllers\Api\EnvioController;
+use App\Infrastructure\Http\Controllers\Api\InformacaoLojaController;
+use App\Infrastructure\Http\Controllers\Api\PedidoController;
+use App\Infrastructure\Http\Controllers\Api\ProdutoController;
+use App\Infrastructure\Http\Controllers\Api\VisitaController;
+use App\Infrastructure\Http\Controllers\Api\WebhookMercadoPagoController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Rotas públicas — storefront (sem autenticação)
+| Autenticação (Padrão e Socialite)
 |--------------------------------------------------------------------------
 */
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/registro', [AuthController::class, 'registrar'])->middleware('throttle:6,1');
 
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+/*
+|--------------------------------------------------------------------------
+| Rotas públicas — storefront (sem autenticação)
+|--------------------------------------------------------------------------
+*/
 Route::get('/produtos', [ProdutoController::class, 'index']);
 Route::get('/produtos/achadinhos', [ProdutoController::class, 'achadinhos']);
 Route::get('/produtos/{produto}', [ProdutoController::class, 'show']);
@@ -43,20 +51,24 @@ Route::post('/checkout/finalizar', [CheckoutController::class, 'finalizar']);
 Route::post('/visitas', [VisitaController::class, 'registrar']);
 Route::get('/frete/opcoes', [EntregaController::class, 'opcoes']);
 
-// Dados da loja (nome, contato, endereço, redes sociais) — usado no
-// footer da vitrine. Nada sensível: mesmo conteúdo que /admin/loja.
 Route::get('/loja', [InformacaoLojaController::class, 'mostrar']);
 
 Route::post('/webhooks/mercadopago', [WebhookMercadoPagoController::class, 'processar']);
 
 /*
 |--------------------------------------------------------------------------
-| Rotas do cliente autenticado — vitrine (auth:sanctum, sem admin)
+| Rotas autenticadas globais (Cliente e Admin)
 |--------------------------------------------------------------------------
-| Qualquer usuário logado (cliente comum) pode ver e rastrear os PRÓPRIOS
-| pedidos. O dono é sempre conferido no controller, nunca confiado pela URL.
 */
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+});
 
+/*
+|--------------------------------------------------------------------------
+| Rotas do cliente autenticado — vitrine (auth:sanctum)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth:sanctum')->prefix('minha-conta')->group(function () {
     Route::get('/pedidos', [ClientePedidoController::class, 'index']);
     Route::get('/pedidos/{pedido}', [ClientePedidoController::class, 'show']);
@@ -66,22 +78,12 @@ Route::middleware('auth:sanctum')->prefix('minha-conta')->group(function () {
 |--------------------------------------------------------------------------
 | Rotas protegidas — painel administrativo
 |--------------------------------------------------------------------------
-| auth:sanctum garante que só usuários autenticados acessam; admin garante
-| que só usuários com is_admin=true acessam (ver AdminApenas).
 */
-
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    // index/show precisam ser registrados aqui também: a listagem pública
-    // em /api/produtos não deve mostrar produtos inativos (ativo=false),
-    // mas o painel admin precisa ver todos os produtos cadastrados.
     Route::get('/produtos', [ProdutoController::class, 'index']);
     Route::get('/produtos/{produto}', [ProdutoController::class, 'show']);
     Route::apiResource('produtos', ProdutoController::class)->except(['index', 'show']);
 
-    // Necessário para o <select> de categoria no formulário de produto,
-    // e o CRUD completo pra gerenciar categoria/subcategoria/sub-subcategoria.
     Route::get('/categorias', [CategoriaController::class, 'index']);
     Route::get('/categorias/arvore', [CategoriaController::class, 'arvore']);
     Route::post('/categorias', [CategoriaController::class, 'store']);

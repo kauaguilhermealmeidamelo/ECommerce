@@ -13,8 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminApenas::class,
-            'manutencao' => \App\Http\Middleware\ModoManutencao::class,
+            'admin' => \App\Infrastructure\Http\Middleware\AdminApenas::class,
+            'manutencao' => \App\Infrastructure\Http\Middleware\ModoManutencao::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => null);

@@ -14,9 +14,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import TopHeader from '@/components/TopHeader.vue'
-import BottomNav from '@/components/BottomNav.vue'
-import DesktopNav from '@/components/DesktopNav.vue'
+import TopHeader from '@/components/layout/TopHeader.vue'
+import BottomNav from '@/components/layout/BottomNav.vue'
+import DesktopNav from '@/components/layout/DesktopNav.vue'
 import api from '@/services/api'
 
 const route = useRoute()

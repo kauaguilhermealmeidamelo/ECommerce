@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useClienteAuthStore } from '@/stores/clienteAuth'
 import CabecalhoLoja from '@/components/CabecalhoLoja.vue'
@@ -21,21 +21,24 @@ import RodapeLoja from '@/components/RodapeLoja.vue'
 import NavInferior from '@/components/NavInferior.vue'
 import NavPilula from '@/components/NavPilula.vue'
 
+interface CabecalhoLojaInstance {
+  carregarQuantidadeCarrinho: () => void
+}
+
 const auth = useClienteAuthStore()
-const cabecalhoRef = ref(null)
+const cabecalhoRef = ref<CabecalhoLojaInstance | null>(null)
 
 // 4 itens fixos — mesma ideia do painel admin (poucos itens, sempre
 // visíveis). "Conta" muda de rota dependendo se o cliente já está logado.
 const itensNav = computed(() => [
-  { rota: 'home', label: 'Início', icone: '🏠' },
-  { rota: 'catalogo', label: 'Catálogo', icone: '🛍️' },
-  { rota: 'carrinho', label: 'Carrinho', icone: '🛒' },
-  { rota: auth.autenticado ? 'meus-pedidos' : 'login-cliente', label: 'Conta', icone: '👤' },
+  { rota: 'home', label: 'Início', icone: 'mdi-home-outline' },
+  { rota: 'catalogo', label: 'Catálogo', icone: 'mdi-shopping-outline' },
+  { rota: 'carrinho', label: 'Carrinho', icone: 'mdi-cart-outline' },
+  { rota: auth.autenticado ? 'meus-pedidos' : 'login-cliente', label: 'Conta', icone: 'mdi-account-outline' },
 ])
 
 // Exposto pra quem adiciona item ao carrinho poder atualizar o badge do
-// cabeçalho sem precisar de um store de carrinho global (ex: chamar
-// `layoutRef.value.atualizarCarrinho()` após POST /carrinho/itens).
+// cabeçalho sem precisar de um store de carrinho global.
 function atualizarCarrinho() {
   cabecalhoRef.value?.carregarQuantidadeCarrinho()
 }
@@ -50,5 +53,8 @@ defineExpose({ atualizarCarrinho })
   flex-direction: column;
   background: var(--cor-fundo);
 }
-.layout__conteudo { flex: 1; }
+
+.layout__conteudo {
+  flex: 1;
+}
 </style>

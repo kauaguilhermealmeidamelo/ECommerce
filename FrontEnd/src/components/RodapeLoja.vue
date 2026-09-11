@@ -7,10 +7,14 @@
           <p v-if="loja">{{ loja.cidade ? `${loja.cidade}${loja.uf ? '/' + loja.uf : ''}` : '' }}</p>
 
           <div v-if="temRedeSocial" class="rodape__redes">
-            <a v-if="loja.instagram_url" :href="loja.instagram_url" target="_blank" rel="noopener" aria-label="Instagram" class="rodape__rede">IG</a>
-            <a v-if="loja.facebook_url" :href="loja.facebook_url" target="_blank" rel="noopener" aria-label="Facebook" class="rodape__rede">FB</a>
-            <a v-if="loja.tiktok_url" :href="loja.tiktok_url" target="_blank" rel="noopener" aria-label="TikTok" class="rodape__rede">TT</a>
-            <a v-if="loja.whatsapp" :href="linkWhatsapp" target="_blank" rel="noopener" aria-label="WhatsApp" class="rodape__rede">WA</a>
+            <a v-if="loja?.instagram_url" :href="loja.instagram_url" target="_blank" rel="noopener"
+              aria-label="Instagram" class="rodape__rede">IG</a>
+            <a v-if="loja?.facebook_url" :href="loja.facebook_url" target="_blank" rel="noopener" aria-label="Facebook"
+              class="rodape__rede">FB</a>
+            <a v-if="loja?.tiktok_url" :href="loja.tiktok_url" target="_blank" rel="noopener" aria-label="TikTok"
+              class="rodape__rede">TT</a>
+            <a v-if="loja?.whatsapp" :href="linkWhatsapp" target="_blank" rel="noopener" aria-label="WhatsApp"
+              class="rodape__rede">WA</a>
           </div>
         </div>
 
@@ -28,7 +32,8 @@
           <ul>
             <li v-if="loja?.telefone">📞 {{ loja.telefone }}</li>
             <li v-if="loja?.email_contato">✉️ {{ loja.email_contato }}</li>
-            <li v-if="loja?.whatsapp"><a :href="linkWhatsapp" target="_blank" rel="noopener">💬 Fale no WhatsApp</a></li>
+            <li v-if="loja?.whatsapp"><a :href="linkWhatsapp" target="_blank" rel="noopener">💬 Fale no WhatsApp</a>
+            </li>
             <li v-if="enderecoCompleto">📍 {{ enderecoCompleto }}</li>
           </ul>
         </div>
@@ -47,12 +52,27 @@
   </footer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { tema } from '@/theme/tema'
 import apiLoja from '@/services/apiLoja'
 
-const loja = ref(null)
+interface LojaInfo {
+  cidade?: string
+  uf?: string
+  instagram_url?: string
+  facebook_url?: string
+  tiktok_url?: string
+  whatsapp?: string
+  telefone?: string
+  email_contato?: string
+  endereco?: string
+  numero?: string
+  bairro?: string
+  [key: string]: any
+}
+
+const loja = ref<LojaInfo | null>(null)
 const anoAtual = new Date().getFullYear()
 
 const temRedeSocial = computed(() =>
@@ -76,7 +96,7 @@ async function carregarLoja() {
   try {
     const { data } = await apiLoja.get('/loja')
     loja.value = data.data
-  } catch (e) {
+  } catch {
     loja.value = null
   }
 }
@@ -90,37 +110,111 @@ onMounted(carregarLoja)
   color: #fff;
   margin-top: 3rem;
 }
-.rodape__conteudo { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
 
-.rodape__grade { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem; }
-.rodape__marca .rodape__logo { font-family: var(--fonte-display); font-size: 1.3rem; font-weight: 700; }
-.rodape__marca p { color: rgba(255,255,255,.6); font-size: .82rem; margin: .4rem 0 0; }
-
-.rodape__redes { display: flex; gap: .5rem; margin-top: 1rem; }
-.rodape__rede {
-  width: 32px; height: 32px; border-radius: 10px;
-  background: rgba(255,255,255,.1); color: rgba(255,255,255,.8);
-  display: flex; align-items: center; justify-content: center;
-  font-size: .65rem; font-weight: 700; text-decoration: none;
+.rodape__conteudo {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 6rem;
 }
-.rodape__rede:hover { background: var(--cor-primaria); color: #fff; }
 
-.rodape__coluna h4 { font-size: .85rem; font-weight: 700; margin: 0 0 .8rem; }
-.rodape__coluna ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .55rem; }
-.rodape__coluna li, .rodape__coluna a { color: rgba(255,255,255,.65); font-size: .8rem; text-decoration: none; }
-.rodape__coluna a:hover { color: #fff; }
+.rodape__grade {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.rodape__marca .rodape__logo {
+  font-family: var(--fonte-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.rodape__marca p {
+  color: rgba(255, 255, 255, .6);
+  font-size: .82rem;
+  margin: .4rem 0 0;
+}
+
+.rodape__redes {
+  display: flex;
+  gap: .5rem;
+  margin-top: 1rem;
+}
+
+.rodape__rede {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .1);
+  color: rgba(255, 255, 255, .8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.rodape__rede:hover {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+
+.rodape__coluna h4 {
+  font-size: .85rem;
+  font-weight: 700;
+  margin: 0 0 .8rem;
+}
+
+.rodape__coluna ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.rodape__coluna li,
+.rodape__coluna a {
+  color: rgba(255, 255, 255, .65);
+  font-size: .8rem;
+  text-decoration: none;
+}
+
+.rodape__coluna a:hover {
+  color: #fff;
+}
 
 .rodape__base {
-  border-top: 1px solid rgba(255,255,255,.12);
+  border-top: 1px solid rgba(255, 255, 255, .12);
   padding-top: 1.25rem;
-  display: flex; flex-direction: column; gap: .4rem;
-  font-size: .72rem; color: rgba(255,255,255,.5);
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  font-size: .72rem;
+  color: rgba(255, 255, 255, .5);
 }
-.rodape__credito a { color: rgba(255,255,255,.7); text-decoration: underline; }
-.rodape__credito a:hover { color: #fff; }
+
+.rodape__credito a {
+  color: rgba(255, 255, 255, .7);
+  text-decoration: underline;
+}
+
+.rodape__credito a:hover {
+  color: #fff;
+}
 
 @media (min-width: 700px) {
-  .rodape__grade { grid-template-columns: 1.4fr 1fr 1fr; }
-  .rodape__base { flex-direction: row; align-items: center; justify-content: space-between; }
+  .rodape__grade {
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+
+  .rodape__base {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 </style>

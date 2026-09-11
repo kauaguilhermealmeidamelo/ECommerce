@@ -4,37 +4,20 @@
   <ProductDetail v-else-if="produto" :produto="produto" @adicionar-carrinho="onAdicionado" />
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import apiLoja from '@/services/apiLoja'
-import ProductDetail from '@/components/ProductDetail.vue'
+<script setup lang="ts">
+import { useProductDetailViewModel } from '@/viewmodels/useProductDetailViewModel'
+// @ts-expect-error Vue SFC module typing is provided by the build toolchain.
+import ProductDetail from '@/components/produto/ProductDetail.vue'
 
-const props = defineProps({ id: { type: [String, Number], required: true } })
-const route = useRoute()
 
-const produto = ref(null)
-const carregando = ref(true)
-const erro = ref(null)
+const props = defineProps<{ id?: string | number }>()
 
-async function carregar() {
-  carregando.value = true
-  try {
-    const { data } = await apiLoja.get(`/produtos/${props.id ?? route.params.id}`)
-    produto.value = data.data
-  } catch (e) {
-    erro.value = 'Produto não encontrado.'
-  } finally {
-    carregando.value = false
-  }
-}
-
-function onAdicionado() {
-  // ProductDetail.vue já chama POST /carrinho/itens sozinho — aqui só
-  // reagimos ao evento se precisar atualizar algo na página (ex: toast).
-}
-
-onMounted(carregar)
+const {
+  produto,
+  carregando,
+  erro,
+  onAdicionado
+} = useProductDetailViewModel(props.id)
 </script>
 
 <style scoped>

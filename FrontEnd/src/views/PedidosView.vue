@@ -1,5 +1,5 @@
 <template>
-  <div class="pagina">
+  <section class="pagina">
     <div class="pagina__cabecalho">
       <div>
         <h1 class="pagina__titulo">Pedidos</h1>
@@ -83,35 +83,39 @@
       <div v-else-if="pedidosEnvio.length === 0" class="card estado-vazio">Nenhum pedido aguardando envio no momento.
       </div>
 
-      <div v-for="pedido in pedidosEnvio" :key="pedido.id" class="card envio-card">
-        <div class="envio-card__topo">
-          <strong>Pedido #{{ pedido.id }}</strong>
-          <span class="badge badge--azul">{{ pedido.metodo_entrega === 'local' ? 'Entrega local' : 'Transportadora'
-            }}</span>
-        </div>
-        <p class="envio-card__itens">{{pedido.itens.map((i) => `${i.quantidade}x ${i.produto}`).join(', ')}}</p>
-        <div class="envio-card__endereco">
-          <strong>{{ pedido.destinatario.nome }}</strong>
-          <span>{{ pedido.destinatario.endereco }}, {{ pedido.destinatario.numero }}</span>
-          <span v-if="pedido.destinatario.complemento">{{ pedido.destinatario.complemento }}</span>
-          <span>{{ pedido.destinatario.bairro }} — {{ pedido.destinatario.cidade }}/{{ pedido.destinatario.uf }}</span>
-          <span><strong>CEP {{ pedido.destinatario.cep }}</strong></span>
-        </div>
-        <div class="envio-card__acoes">
-          <button class="btn btn--secundario" @click="copiarEndereco(pedido)">📋 Copiar endereço</button>
-        </div>
-        <details class="envio-card__form">
-          <summary>Marcar como enviado</summary>
-          <div class="envio-card__campos">
-            <input v-model="formEnvio[pedido.id].transportadora" placeholder="Transportadora (Correios, Jadlog...)" />
-            <input v-model="formEnvio[pedido.id].codigo_rastreio" placeholder="Código de rastreio" />
-            <button class="btn btn--primario btn--bloco" :disabled="enviandoId === pedido.id"
-              @click="marcarEnviado(pedido)">
-              {{ enviandoId === pedido.id ? 'Salvando...' : 'Confirmar envio' }}
-            </button>
+      <template v-else>
+        <div v-for="pedido in pedidosEnvio" :key="pedido.id" class="card envio-card">
+          <div class="envio-card__topo">
+            <strong>Pedido #{{ pedido.id }}</strong>
+            <span class="badge badge--azul">{{ pedido.metodo_entrega === 'local' ? 'Entrega local' : 'Transportadora'
+              }}</span>
           </div>
-        </details>
-      </div>
+          <p class="envio-card__itens">{{pedido.itens?.map((i: any) => `${i.quantidade}x ${i.produto}`).join(', ')}}
+          </p>
+          <div v-if="pedido.destinatario" class="envio-card__endereco">
+            <strong>{{ pedido.destinatario.nome }}</strong>
+            <span>{{ pedido.destinatario.endereco }}, {{ pedido.destinatario.numero }}</span>
+            <span v-if="pedido.destinatario.complemento">{{ pedido.destinatario.complemento }}</span>
+            <span>{{ pedido.destinatario.bairro }} — {{ pedido.destinatario.cidade }}/{{ pedido.destinatario.uf
+              }}</span>
+            <span><strong>CEP {{ pedido.destinatario.cep }}</strong></span>
+          </div>
+          <div class="envio-card__acoes">
+            <button class="btn btn--secundario" @click="copiarEndereco(pedido)">📋 Copiar endereço</button>
+          </div>
+          <details class="envio-card__form" v-if="formEnvio[pedido.id]">
+            <summary>Marcar como enviado</summary>
+            <div class="envio-card__campos">
+              <input v-model="formEnvio[pedido.id].transportadora" placeholder="Transportadora (Correios, Jadlog...)" />
+              <input v-model="formEnvio[pedido.id].codigo_rastreio" placeholder="Código de rastreio" />
+              <button class="btn btn--primario btn--bloco" :disabled="enviandoId === pedido.id"
+                @click="marcarEnviado(pedido)">
+                {{ enviandoId === pedido.id ? 'Salvando...' : 'Confirmar envio' }}
+              </button>
+            </div>
+          </details>
+        </div>
+      </template>
     </div>
 
     <!-- Filtro -->
@@ -157,34 +161,34 @@
     </Modal>
 
     <Toast :mensagem="toastMsg" :tipo="toastTipo" @fechar="toastMsg = ''" />
-  </div>
+  </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import api from '@/services/api'
-import Modal from '@/components/Modal.vue'
-import Toast from '@/components/Toast.vue'
-import StatusPedidoBadge from '@/components/StatusPedidoBadge.vue'
+import Modal from '@/components/common/Modal.vue'
+import Toast from '@/components/common/Toast.vue'
+import StatusPedidoBadge from '@/components/dashboard/StatusPedidoBadge.vue'
 
-const aba = ref('todos')
+const aba = ref < 'todos' | 'envio' > ('todos')
 
-const pedidos = ref([])
+const pedidos = ref < any[] > ([])
 const carregandoPedidos = ref(true)
-const erroPedidos = ref(null)
+const erroPedidos = ref < string | null > (null)
 
-const pedidosEnvio = ref([])
+const pedidosEnvio = ref < any[] > ([])
 const carregandoEnvio = ref(true)
-const formEnvio = reactive({})
-const enviandoId = ref(null)
+const formEnvio = reactive < Record < number, { transportadora: string; codigo_rastreio: string }>> ({})
+const enviandoId = ref < number | null > (null)
 
 const toastMsg = ref('')
-const toastTipo = ref('success')
+const toastTipo = ref < 'success' | 'info' | 'error' > ('success')
 
 const filtroModalAberto = ref(false)
 const filtro = ref({ busca: '', status: 'Todos' })
 const filtroPendente = ref({ busca: '', status: 'Todos' })
-const pedidoDetalhe = ref(null)
+const pedidoDetalhe = ref < any | null > (null)
 
 const statusFiltraveis = [
   { valor: 'Todos', rotulo: 'Todos' },
@@ -198,7 +202,7 @@ const statusFiltraveis = [
   { valor: 'cancelado', rotulo: 'Cancelado' },
 ]
 
-const rotulosPagamento = {
+const rotulosPagamento: Record<string, string> = {
   pix: 'Pix',
   credit_card: 'Cartão de Crédito',
   debit_card: 'Cartão de Débito',
@@ -206,10 +210,10 @@ const rotulosPagamento = {
   saldo_mp: 'Saldo Mercado Pago',
 }
 
-const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
-const formatarData = (d) => new Date(d).toLocaleDateString('pt-BR')
-const rotuloEntrega = (m) => ({ retirada: 'Retirada na loja', local: 'Entrega local', transportadora: 'Transportadora' }[m] ?? '—')
-const rotuloPagamento = (pedido) => {
+const formatarMoeda = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
+const formatarData = (d: string) => new Date(d).toLocaleDateString('pt-BR')
+const rotuloEntrega = (m: string) => ({ retirada: 'Retirada na loja', local: 'Entrega local', transportadora: 'Transportadora' }[m] ?? '—')
+const rotuloPagamento = (pedido: any) => {
   if (!pedido?.metodo_pagamento) return pedido?.status === 'pendente' ? 'Aguardando' : '—'
   return rotulosPagamento[pedido.metodo_pagamento] ?? pedido.metodo_pagamento
 }
@@ -226,24 +230,25 @@ function abrirFiltro() { filtroPendente.value = { ...filtro.value }; filtroModal
 function aplicarFiltro() { filtro.value = { ...filtroPendente.value }; filtroModalAberto.value = false }
 function limparFiltro() { filtro.value = { busca: '', status: 'Todos' }; filtroPendente.value = { ...filtro.value }; filtroModalAberto.value = false }
 
-function verDetalhe(pedido) { pedidoDetalhe.value = pedido }
+function verDetalhe(pedido: any) { pedidoDetalhe.value = pedido }
 
-function copiarEndereco(pedido) {
+function copiarEndereco(pedido: any) {
   const d = pedido.destinatario
+  if (!d) return
   const texto = `${d.nome}\n${d.endereco}, ${d.numero} ${d.complemento ?? ''}\n${d.bairro} - ${d.cidade}/${d.uf}\nCEP: ${d.cep}`
   navigator.clipboard.writeText(texto)
   toastTipo.value = 'info'
   toastMsg.value = 'Endereço copiado.'
 }
 
-async function marcarEnviado(pedido) {
+async function marcarEnviado(pedido: any) {
   enviandoId.value = pedido.id
   try {
     await api.patch(`/admin/envios/${pedido.id}/marcar-enviado`, formEnvio[pedido.id])
     pedidosEnvio.value = pedidosEnvio.value.filter((p) => p.id !== pedido.id)
     toastTipo.value = 'success'
     toastMsg.value = 'Envio confirmado!'
-  } catch (e) {
+  } catch {
     toastTipo.value = 'error'
     toastMsg.value = 'Não foi possível confirmar o envio.'
   } finally {
@@ -256,7 +261,7 @@ async function carregarPedidos() {
   try {
     const { data } = await api.get('/admin/pedidos')
     pedidos.value = data.data
-  } catch (e) {
+  } catch {
     erroPedidos.value = 'Não foi possível carregar os pedidos.'
   } finally {
     carregandoPedidos.value = false
@@ -269,7 +274,7 @@ async function carregarEnvios() {
     const { data } = await api.get('/admin/envios/pendentes')
     pedidosEnvio.value = data.data
     pedidosEnvio.value.forEach((p) => { formEnvio[p.id] = { transportadora: '', codigo_rastreio: '' } })
-  } catch (e) {
+  } catch {
     pedidosEnvio.value = []
   } finally {
     carregandoEnvio.value = false

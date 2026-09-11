@@ -42,57 +42,107 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useClienteAuthStore } from '@/stores/clienteAuth'
+<script setup lang="ts">
+import { useCadastroViewModel } from '@/viewmodels/useCadastroViewModel'
 
-const router = useRouter()
-const auth = useClienteAuthStore()
-
-const form = ref({ name: '', email: '', telefone: '', senha: '', senha_confirmation: '' })
-const erro = ref(null)
-const carregando = ref(false)
-
-async function cadastrar() {
-  erro.value = null
-
-  if (form.value.senha !== form.value.senha_confirmation) {
-    erro.value = 'As senhas não coincidem.'
-    return
-  }
-
-  carregando.value = true
-  try {
-    await auth.registrar(form.value)
-    router.push({ name: 'home' })
-  } catch (e) {
-    const erros = e.response?.data?.errors
-    erro.value = erros ? Object.values(erros)[0][0] : 'Não foi possível criar sua conta. Confira os dados.'
-  } finally {
-    carregando.value = false
-  }
-}
+const {
+  form,
+  erro,
+  carregando,
+  cadastrar,
+} = useCadastroViewModel()
 </script>
 
 <style scoped>
-.autenticacao { max-width: 420px; margin: 3rem auto; padding: 0 1.5rem 4rem; }
-.autenticacao__titulo { font-size: 1.7rem; margin: 0 0 .3rem; color: var(--cor-texto); }
-.autenticacao__subtitulo { color: var(--cor-texto-suave); margin: 0 0 1.5rem; font-size: .9rem; }
-.autenticacao__form { display: flex; flex-direction: column; gap: 1rem; }
-.autenticacao__form label { display: flex; flex-direction: column; gap: .4rem; font-size: .85rem; color: var(--cor-texto-suave); }
-.autenticacao__form input {
-  border: 1px solid var(--cor-linha); border-radius: var(--raio-borda);
-  padding: .7rem .85rem; font-size: .9rem; background: var(--cor-superficie); color: var(--cor-texto);
+.autenticacao {
+  max-width: 420px;
+  margin: 3rem auto;
+  padding: 0 1.5rem 4rem;
 }
-.autenticacao__form input:focus { outline: none; border-color: var(--cor-primaria); }
-.autenticacao__erro { color: #dc2626; font-size: .85rem; margin: 0; }
-.autenticacao__rodape { text-align: center; margin-top: 1.5rem; font-size: .85rem; color: var(--cor-texto-suave); }
-.autenticacao__rodape a { color: var(--cor-primaria); font-weight: 600; text-decoration: none; }
 
-.btn { border: none; border-radius: var(--raio-borda); padding: .8rem 1rem; font-weight: 700; font-size: .92rem; cursor: pointer; }
-.btn--primario { background: var(--cor-primaria); color: #fff; }
-.btn--primario:hover { background: var(--cor-primaria-hover); }
-.btn--primario:disabled { opacity: .6; cursor: not-allowed; }
-.btn--bloco { width: 100%; }
+.autenticacao__titulo {
+  font-size: 1.7rem;
+  margin: 0 0 .3rem;
+  color: var(--cor-texto);
+}
+
+.autenticacao__subtitulo {
+  color: var(--cor-texto-suave);
+  margin: 0 0 1.5rem;
+  font-size: .9rem;
+}
+
+.autenticacao__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.autenticacao__form label {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  font-size: .85rem;
+  color: var(--cor-texto-suave);
+}
+
+.autenticacao__form input {
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio-borda);
+  padding: .7rem .85rem;
+  font-size: .9rem;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+
+.autenticacao__form input:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+}
+
+.autenticacao__erro {
+  color: #dc2626;
+  font-size: .85rem;
+  margin: 0;
+}
+
+.autenticacao__rodape {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: .85rem;
+  color: var(--cor-texto-suave);
+}
+
+.autenticacao__rodape a {
+  color: var(--cor-primaria);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn {
+  border: none;
+  border-radius: var(--raio-borda);
+  padding: .8rem 1rem;
+  font-weight: 700;
+  font-size: .92rem;
+  cursor: pointer;
+}
+
+.btn--primario {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+
+.btn--primario:hover {
+  background: var(--cor-primaria-hover);
+}
+
+.btn--primario:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.btn--bloco {
+  width: 100%;
+}
 </style>

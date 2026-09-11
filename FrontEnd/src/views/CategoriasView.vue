@@ -57,93 +57,26 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import api from '@/services/api'
-import CategoriaArvoreItem from '@/components/CategoriaArvoreItem.vue'
+<script setup lang="ts">
+import { useCategoriasViewModel } from '@/viewmodels/useCategoriasViewModel'
+// @ts-expect-error Vue SFC declaration check
+import CategoriaArvoreItem from '@/components/common/CategoriaArvoreItem.vue'
 
-const arvore = ref([])
-const categoriasFlat = ref([])
-const carregando = ref(true)
-const salvando = ref(false)
-const erro = ref(null)
-const categoriaPaiSelecionada = ref(null)
-
-const form = ref({ nome: '', slug: '', categoria_pai_id: null })
-
-function gerarSlug() {
-  form.value.slug = form.value.nome
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-}
-
-// Calcula quantos níveis de indentação mostrar no <select>, seguindo
-// a cadeia de categoria_pai_id na lista flat.
-function profundidade(categoria) {
-  let nivel = 0
-  let atual = categoria
-
-  while (atual?.categoria_pai_id) {
-    nivel++
-    atual = categoriasFlat.value.find((c) => c.id === atual.categoria_pai_id)
-    if (!atual) break
-  }
-
-  return nivel
-}
-
-function prepararSubcategoria(categoriaPai) {
-  categoriaPaiSelecionada.value = categoriaPai
-  form.value.categoria_pai_id = categoriaPai.id
-  form.value.nome = ''
-  form.value.slug = ''
-  erro.value = null
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-function limparPai() {
-  categoriaPaiSelecionada.value = null
-  form.value.categoria_pai_id = null
-}
-
-async function carregar() {
-  carregando.value = true
-  try {
-    const [{ data: dataArvore }, { data: dataFlat }] = await Promise.all([
-      api.get('/admin/categorias/arvore'),
-      api.get('/admin/categorias'),
-    ])
-    arvore.value = dataArvore.data
-    categoriasFlat.value = dataFlat.data
-  } catch (e) {
-    erro.value = 'Não foi possível carregar as categorias.'
-  } finally {
-    carregando.value = false
-  }
-}
-
-async function criar() {
-  salvando.value = true
-  erro.value = null
-
-  try {
-    await api.post('/admin/categorias', form.value)
-    form.value = { nome: '', slug: '', categoria_pai_id: null }
-    categoriaPaiSelecionada.value = null
-    await carregar()
-  } catch (e) {
-    const erros = e.response?.data?.errors
-    erro.value = erros ? Object.values(erros)[0][0] : 'Não foi possível criar a categoria.'
-  } finally {
-    salvando.value = false
-  }
-}
-
-onMounted(carregar)
+const {
+  arvore,
+  categoriasFlat,
+  carregando,
+  salvando,
+  erro,
+  categoriaPaiSelecionada,
+  form,
+  gerarSlug,
+  profundidade,
+  prepararSubcategoria,
+  limparPai,
+  carregar,
+  criar,
+} = useCategoriasViewModel()
 </script>
 
 <style scoped>

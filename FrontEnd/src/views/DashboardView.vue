@@ -30,7 +30,7 @@
       <section class="linha-dupla">
         <div class="card grafico-receita">
           <div class="card__cabecalho">
-            
+
             <div>
               <h3 class="card__titulo">Receita × Lucro</h3>
               <p class="card__subtitulo">Últimos 6 meses</p>
@@ -161,8 +161,8 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import Chart from 'chart.js/auto'
 import api from '@/services/api'
-import StatCard from '@/components/StatCard.vue'
-import StatusPedidoBadge from '@/components/StatusPedidoBadge.vue'
+import StatCard from '@/components/dashboard/StatCard.vue'
+import StatusPedidoBadge from '@/components/dashboard/StatusPedidoBadge.vue'
 
 const dados = ref(null)
 const carregando = ref(true)

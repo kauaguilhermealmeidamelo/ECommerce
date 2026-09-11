@@ -1,12 +1,12 @@
 <template>
-  <div class="login">
-    <h1 class="font-display login__titulo">Entrar</h1>
-    <p class="login__subtitulo">Acesse o painel de gerenciamento da sua loja.</p>
+  <div class="autenticacao">
+    <h1 class="font-display autenticacao__titulo">Entrar</h1>
+    <p class="autenticacao__subtitulo">Acesse sua conta para ver e rastrear seus pedidos.</p>
 
-    <form @submit.prevent="entrar" class="login__form">
+    <form class="autenticacao__form" @submit.prevent="entrar">
       <label>
         E-mail
-        <input v-model="email" type="email" required autocomplete="username" />
+        <input v-model="email" type="email" required autocomplete="email" />
       </label>
 
       <label>
@@ -14,80 +14,161 @@
         <input v-model="senha" type="password" required autocomplete="current-password" />
       </label>
 
-      <p v-if="erro" class="login__erro">{{ erro }}</p>
+      <p v-if="erro" class="autenticacao__erro">{{ erro }}</p>
 
       <button class="btn btn--primario btn--bloco" type="submit" :disabled="carregando">
         {{ carregando ? 'Entrando...' : 'Entrar' }}
       </button>
     </form>
+
+    <div class="autenticacao__divisor"><span>ou</span></div>
+
+    <a :href="urlGoogle" class="btn btn--google btn--bloco">
+      <span>🔵</span> Entrar com Google
+    </a>
+
+    <p class="autenticacao__rodape">
+      Ainda não tem conta? <router-link :to="{ name: 'cadastro' }">Criar conta</router-link>
+    </p>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+<script setup lang="ts">
+import { useClienteLoginViewModel } from '@/viewmodels/useClienteLoginViewModel'
 
-const email = ref('')
-const senha = ref('')
-const erro = ref(null)
-const carregando = ref(false)
-
-const router = useRouter()
-const auth = useAuthStore()
-
-async function entrar() {
-  carregando.value = true
-  erro.value = null
-
-  try {
-    await auth.login(email.value, senha.value)
-    router.push({ name: 'dashboard' })
-  } catch (e) {
-    erro.value = 'E-mail ou senha inválidos.'
-  } finally {
-    carregando.value = false
-  }
-}
+const {
+  email,
+  senha,
+  erro,
+  carregando,
+  urlGoogle,
+  entrar,
+} = useClienteLoginViewModel()
 </script>
 
 <style scoped>
-.login {
-  max-width: 380px;
-  margin: 4rem auto;
-  padding: 0 1.5rem;
+.autenticacao {
+  max-width: 420px;
+  margin: 3rem auto;
+  padding: 0 1.5rem 4rem;
 }
 
-.login__titulo {
-  font-size: 1.8rem;
+.autenticacao__titulo {
+  font-size: 1.7rem;
   margin: 0 0 .3rem;
-  font-weight: 800;
-  color: var(--ink);
+  color: var(--cor-texto);
 }
 
-.login__subtitulo {
-  color: var(--ink-soft);
+.autenticacao__subtitulo {
+  color: var(--cor-texto-suave);
   margin: 0 0 1.5rem;
-  font-size: .92rem;
+  font-size: .9rem;
 }
 
-.login__form {
+.autenticacao__form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.login__form label {
+.autenticacao__form label {
   display: flex;
   flex-direction: column;
   gap: .4rem;
   font-size: .85rem;
-  color: var(--ink-soft);
+  color: var(--cor-texto-suave);
 }
 
-.login__erro {
-  color: var(--danger);
+.autenticacao__form input {
+  border: 1px solid var(--cor-linha);
+  border-radius: var(--raio-borda);
+  padding: .7rem .85rem;
+  font-size: .9rem;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+
+.autenticacao__form input:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+}
+
+.autenticacao__erro {
+  color: #dc2626;
   font-size: .85rem;
   margin: 0;
+}
+
+.autenticacao__rodape {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: .85rem;
+  color: var(--cor-texto-suave);
+}
+
+.autenticacao__rodape a {
+  color: var(--cor-primaria);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.autenticacao__divisor {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin: 1.25rem 0;
+  color: var(--cor-texto-suave);
+  font-size: .8rem;
+}
+
+.autenticacao__divisor::before,
+.autenticacao__divisor::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--cor-linha);
+}
+
+.btn {
+  border: none;
+  border-radius: var(--raio-borda);
+  padding: .8rem 1rem;
+  font-weight: 700;
+  font-size: .92rem;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+}
+
+.btn--primario {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+
+.btn--primario:hover {
+  background: var(--cor-primaria-hover);
+}
+
+.btn--primario:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.btn--google {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-linha);
+}
+
+.btn--google:hover {
+  background: var(--cor-fundo);
+}
+
+.btn--bloco {
+  width: 100%;
 }
 </style>

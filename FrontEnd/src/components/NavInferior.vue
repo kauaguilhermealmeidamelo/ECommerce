@@ -1,12 +1,7 @@
 <template>
   <nav class="navbar navbar--mobile">
-    <router-link
-      v-for="item in itens"
-      :key="item.rota"
-      :to="{ name: item.rota }"
-      class="navbar__item"
-      :class="{ 'navbar__item--ativo': rotaAtiva === item.rota }"
-    >
+    <router-link v-for="item in itens" :key="item.rota" :to="{ name: item.rota }" class="navbar__item"
+      :class="{ 'navbar__item--ativo': rotaAtiva === item.rota }">
       <span class="navbar__icone">{{ item.icone }}</span>
       <span class="navbar__label">{{ item.label }}</span>
       <span v-if="item.contador" class="navbar__contador">{{ item.contador }}</span>
@@ -14,13 +9,20 @@
   </nav>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-defineProps({
-  itens: { type: Array, required: true },
-})
+interface NavItem {
+  rota: string
+  label: string
+  icone: string
+  contador?: number | string
+}
+
+defineProps < {
+  itens: NavItem[]
+} > ()
 
 const route = useRoute()
 const rotaAtiva = computed(() => route.name)
@@ -28,7 +30,7 @@ const rotaAtiva = computed(() => route.name)
 
 <style scoped>
 /* Idêntico em estrutura ao BottomNav.vue do painel admin — só troca as
-   cores fixas (--blue-600 etc) pelas CSS vars do tema por cliente. */
+    cores fixas (--blue-600 etc) pelas CSS vars do tema por cliente. */
 .navbar--mobile {
   position: fixed;
   bottom: 0;
@@ -39,6 +41,7 @@ const rotaAtiva = computed(() => route.name)
   display: flex;
   z-index: 40;
 }
+
 .navbar__item {
   flex: 1;
   display: flex;
@@ -50,21 +53,53 @@ const rotaAtiva = computed(() => route.name)
   color: var(--cor-texto-suave);
   text-decoration: none;
 }
-.navbar__item--ativo { color: var(--cor-primaria); }
-.navbar__item--ativo::before {
-  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 22px; height: 2px; background: var(--cor-primaria); border-radius: 999px;
+
+.navbar__item--ativo {
+  color: var(--cor-primaria);
 }
-.navbar__icone { font-size: 1.1rem; line-height: 1; }
-.navbar__label { font-size: .62rem; font-weight: 700; }
+
+.navbar__item--ativo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 2px;
+  background: var(--cor-primaria);
+  border-radius: 999px;
+}
+
+.navbar__icone {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.navbar__label {
+  font-size: .62rem;
+  font-weight: 700;
+}
+
 .navbar__contador {
-  position: absolute; top: 4px; right: 22%;
-  background: var(--cor-primaria); color: #fff; font-size: .55rem; font-weight: 700;
-  min-width: 14px; height: 14px; border-radius: 999px;
-  display: flex; align-items: center; justify-content: center; padding: 0 .2rem;
+  position: absolute;
+  top: 4px;
+  right: 22%;
+  background: var(--cor-primaria);
+  color: #fff;
+  font-size: .55rem;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 .2rem;
 }
 
 @media (min-width: 768px) {
-  .navbar--mobile { display: none; }
+  .navbar--mobile {
+    display: none;
+  }
 }
 </style>
