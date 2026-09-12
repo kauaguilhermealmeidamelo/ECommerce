@@ -1,494 +1,428 @@
+<!-- src/views/DashboardView.vue -->
 <template>
-  <div class="pagina">
-    <div v-if="carregando" class="estado-carregando">Carregando painel...</div>
-    <p v-else-if="erro" class="erro-mensagem">{{ erro }}</p>
-
-    <template v-else-if="dados">
-      <!-- Métricas -->
-      <section class="grade-metricas">
-        <StatCard icone="mdi-cash-multiple" cor="azul" :valor="formatarMoeda(dados.mes_atual.faturamento)"
-          label="Faturamento (mês)"
-          :variacao="calcularVariacao(dados.mes_atual.faturamento, dados.mes_anterior.faturamento)"
-          :sub="`vs. mês anterior ${formatarMoeda(dados.mes_anterior.faturamento)}`" />
-
-        <StatCard icone="mdi-shopping" cor="roxo" :valor="dados.mes_atual.pedidos" label="Pedidos (mês)"
-          :variacao="calcularVariacao(dados.mes_atual.pedidos, dados.mes_anterior.pedidos)"
-          :sub="`vs. mês anterior ${dados.mes_anterior.pedidos}`" />
-
-        <StatCard icone="mdi-credit-card-outline" cor="laranja" :valor="formatarMoeda(dados.mes_atual.ticket_medio)"
-          label="Ticket Médio"
-          :variacao="calcularVariacao(dados.mes_atual.ticket_medio, dados.mes_anterior.ticket_medio)"
-          :sub="`vs. mês anterior ${formatarMoeda(dados.mes_anterior.ticket_medio)}`" />
-
-        <StatCard icone="mdi-account-group" cor="verde" :valor="dados.mes_atual.novos_clientes" label="Novos Clientes"
-          :variacao="calcularVariacao(dados.mes_atual.novos_clientes, dados.mes_anterior.novos_clientes)"
-          :sub="`vs. mês anterior ${dados.mes_anterior.novos_clientes}`" />
-
-      </section>
-
-      <!-- Receita + resumo do mês -->
-      <section class="linha-dupla">
-        <div class="card grafico-receita">
-          <div class="card__cabecalho">
-
-            <div>
-              <h3 class="card__titulo">Receita × Lucro</h3>
-              <p class="card__subtitulo">Últimos 6 meses</p>
-            </div>
-          </div>
-          <div class="grafico-receita__corpo">
-            <canvas ref="canvasReceita" height="150"></canvas>
-          </div>
+  <v-container class="dashboard-container py-8 px-6" fluid>
+    <!-- Cabeçalho -->
+    <div class="dashboard-header mb-8">
+      <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center gap-4">
+        <div>
+          <h1 class="text-h4 font-weight-bold text-grey-darken-4 tracking-tight">Dashboard</h1>
+          <p class="text-body-2 text-grey-darken-1 mt-1">Visão geral e desempenho consolidado das operações da sua loja</p>
         </div>
-
-        <div class="card resumo-mes">
-          <div class="card__cabecalho">
-            <div>
-              <h3 class="card__titulo">Resumo do Mês</h3>
-              <p class="card__subtitulo">{{ mesAtualFormatado }}</p>
-            </div>
-          </div>
-          <div class="resumo-mes__corpo">
-            <div v-for="linha in linhasResumo" :key="linha.label" class="resumo-mes__linha">
-              <div class="resumo-mes__linha-topo">
-                <span>{{ linha.label }}</span>
-                <strong>{{ linha.valor }}</strong>
-              </div>
-              <div class="barra">
-                <div class="barra__preenchimento" :class="linha.cor" :style="{ width: linha.pct + '%' }"></div>
-              </div>
-            </div>
-
-            <div class="resumo-mes__destaque">
-              <p>Melhor mês do período</p>
-              <strong>{{ melhorMes?.mes }} — {{ formatarMoeda(melhorMes?.faturamento ?? 0) }}</strong>
-              <span>Faturamento atual representa {{ pctDoMelhorMes }}% desse recorde.</span>
-            </div>
-          </div>
+        <div class="d-flex align-center gap-3">
+          <v-chip variant="outlined" color="grey-darken-2" size="small" prepend-icon="mdi-calendar-range">
+            Setembro de 2026
+          </v-chip>
         </div>
-      </section>
+      </div>
+    </div>
 
-      <!-- Vendas por categoria (NOVO) -->
-      <section class="card">
-        <div class="card__cabecalho">
+    <!-- Cards de Estatísticas (KPIs) -->
+    <v-row class="mb-6">
+      <v-col cols="12" sm="6" lg="3">
+        <StatCard 
+          title="Faturamento (mês)" 
+          :value="formatarMoeda(dados.faturamentoAtual)" 
+          :comparison="`vs. mês anterior ${formatarMoeda(dados.faturamentoAnterior)}`"
+          variant="indigo"
+        >
+          <template #icon>
+            <v-icon icon="mdi-currency-usd" size="24" />
+          </template>
+          <template #badge>
+            <v-chip color="success" size="x-small" class="font-weight-bold px-2" prepend-icon="mdi-menu-up">18.2%</v-chip>
+          </template>
+        </StatCard>
+      </v-col>
+
+      <v-col cols="12" sm="6" lg="3">
+        <StatCard 
+          title="Pedidos (mês)" 
+          :value="dados.pedidosAtual" 
+          :comparison="`vs. mês anterior ${dados.pedidosAnterior}`"
+          variant="purple"
+        >
+          <template #icon>
+            <v-icon icon="mdi-shopping-outline" size="24" />
+          </template>
+          <template #badge>
+            <v-chip color="success" size="x-small" class="font-weight-bold px-2" prepend-icon="mdi-menu-up">12.5%</v-chip>
+          </template>
+        </StatCard>
+      </v-col>
+
+      <v-col cols="12" sm="6" lg="3">
+        <StatCard 
+          title="Ticket Médio" 
+          :value="formatarMoeda(dados.ticketMedioAtual)" 
+          :comparison="`vs. mês anterior ${formatarMoeda(dados.ticketMedioAnterior)}`"
+          variant="amber"
+        >
+          <template #icon>
+            <v-icon icon="mdi-chart-line" size="24" />
+          </template>
+        </StatCard>
+      </v-col>
+
+      <v-col cols="12" sm="6" lg="3">
+        <StatCard 
+          title="Novos Clientes" 
+          :value="dados.novosClientesAtual" 
+          :comparison="`vs. mês anterior ${dados.novosClientesAnterior}`"
+          variant="emerald"
+        >
+          <template #icon>
+            <v-icon icon="mdi-account-group-outline" size="24" />
+          </template>
+          <template #badge>
+            <v-chip color="success" size="x-small" class="font-weight-bold px-2" prepend-icon="mdi-menu-up">5.2%</v-chip>
+          </template>
+        </StatCard>
+      </v-col>
+    </v-row>
+
+    <!-- Seção de Gráficos e Resumo do Mês -->
+    <v-row class="mb-6">
+      <!-- Gráfico de Comparação de Custos, Lucros e Vendas -->
+      <v-col cols="12" lg="8">
+        <v-card class="card-custom pa-6 h-100 d-flex flex-column justify-space-between" elevation="0">
           <div>
-            <h3 class="card__titulo">Vendas por Categoria</h3>
-            <p class="card__subtitulo">Faturamento dos últimos 90 dias, por categoria cadastrada</p>
-          </div>
-        </div>
-
-        <div v-if="dados.categorias_mais_vendidas.length === 0" class="estado-vazio">
-          Nenhuma venda registrada nas categorias cadastradas ainda.
-        </div>
-
-        <div v-else class="categorias__corpo">
-          <div class="categorias__grafico">
-            <canvas ref="canvasCategorias" height="220"></canvas>
-          </div>
-          <ul class="categorias__lista">
-            <li v-for="(cat, i) in dados.categorias_mais_vendidas" :key="cat.categoria" class="categorias__item">
-              <span class="categorias__ponto"
-                :style="{ background: coresCategorias[i % coresCategorias.length] }"></span>
-              <span class="categorias__nome">{{ cat.categoria }}</span>
-              <span class="categorias__valor">{{ formatarMoeda(cat.faturamento) }}</span>
-              <span class="categorias__pct">{{ cat.percentual_faturamento }}%</span>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- Últimos pedidos -->
-      <section class="card">
-        <div class="card__cabecalho">
-          <div>
-            <h3 class="card__titulo">Últimos Pedidos</h3>
-            <p class="card__subtitulo">{{ pedidos.length }} pedido{{ pedidos.length !== 1 ? 's' : '' }} recentes</p>
-          </div>
-          <router-link :to="{ name: 'pedidos' }" class="btn btn--fantasma">Ver todos →</router-link>
-        </div>
-
-        <div v-if="carregandoPedidos" class="estado-carregando">Carregando pedidos...</div>
-        <div v-else-if="pedidos.length === 0" class="estado-vazio">Nenhum pedido recebido ainda.</div>
-
-        <template v-else>
-          <div class="tabela__scroll pedidos-tabela--desktop">
-            <table class="tabela">
-              <thead>
-                <tr>
-                  <th>Pedido</th>
-                  <th>Data</th>
-                  <th>Itens</th>
-                  <th>Valor</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="pedido in pedidos" :key="pedido.id">
-                  <td><strong>#{{ pedido.id }}</strong></td>
-                  <td>{{ formatarData(pedido.created_at) }}</td>
-                  <td>{{ pedido.itens?.length ?? 0 }} item(ns)</td>
-                  <td><strong>{{ formatarMoeda(pedido.total) }}</strong></td>
-                  <td>
-                    <StatusPedidoBadge :status="pedido.status" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="lista-mobile pedidos-tabela--mobile">
-            <div v-for="pedido in pedidos" :key="pedido.id" class="lista-mobile__item">
-              <div style="flex:1">
-                <strong>#{{ pedido.id }}</strong>
-                <p class="pedidos-tabela__meta">{{ formatarData(pedido.created_at) }} · {{ pedido.itens?.length ?? 0 }}
-                  item(ns)</p>
+            <div class="d-flex justify-space-between align-center flex-wrap gap-2 mb-1">
+              <h2 class="text-h6 font-weight-bold text-grey-darken-4">Comparativo de Vendas, Custos e Lucros</h2>
+              <div class="d-flex align-center legend-container">
+                <span class="legend-item"><span class="dot receita"></span> Vendas (Sales)</span>
+                <span class="legend-item"><span class="dot gasto"></span> Custos (Cost)</span>
+                <span class="legend-item"><span class="dot lucro"></span> Lucro (Profit)</span>
               </div>
-              <div style="text-align:right">
-                <strong>{{ formatarMoeda(pedido.total) }}</strong>
-                <div>
-                  <StatusPedidoBadge :status="pedido.status" />
-                </div>
+            </div>
+            <p class="text-caption text-grey-darken-1 mb-4">Análise comparativa de desempenho financeiro dos últimos 6 meses</p>
+          </div>
+          
+          <!-- Tooltip Informativo do Mês Selecionado -->
+          <div class="chart-tooltip-box mb-4 px-4 py-3">
+            <div class="d-flex justify-space-between align-center flex-wrap gap-2">
+              <div>
+                <span class="text-caption text-grey">Mês em análise:</span>
+                <strong class="text-primary ml-1 font-weight-bold">{{ mesSelecionado.mes }}</strong>
+              </div>
+              <div class="d-flex align-center tooltip-values gap-4">
+                <span>Vendas: <strong class="text-blue-darken-2">{{ formatarMoeda(mesSelecionado.receita) }}</strong></span>
+                <span>Custo: <strong class="text-error">{{ formatarMoeda(mesSelecionado.gasto) }}</strong></span>
+                <span>Lucro: <strong class="text-success">{{ formatarMoeda(mesSelecionado.lucro) }}</strong></span>
               </div>
             </div>
           </div>
-        </template>
-      </section>
-    </template>
-  </div>
+
+          <!-- Gráfico de Colunas Agrupadas com Proporção Adequada -->
+          <div class="bar-chart-container my-3">
+            <div 
+              v-for="(item, index) in historicoMensal" 
+              :key="index"
+              class="bar-group"
+              @mouseenter="mesSelecionado = item"
+              @click="mesSelecionado = item"
+            >
+              <div class="bars-wrapper">
+                <!-- Coluna Vendas proporcional (Escala baseada em max 18.000) -->
+                <div class="bar bar-receita" :style="{ height: `${(item.receita / 18000) * 100}%` }" title="Vendas"></div>
+                <!-- Coluna Custos proporcional -->
+                <div class="bar bar-gasto" :style="{ height: `${(item.gasto / 18000) * 100}%` }" title="Custos"></div>
+                <!-- Coluna Lucro proporcional -->
+                <div class="bar bar-lucro" :style="{ height: `${(item.lucro / 18000) * 100}%` }" title="Lucro"></div>
+              </div>
+              <span class="bar-label" :class="{ 'text-primary font-weight-bold': mesSelecionado.mes === item.mes }">
+                {{ item.mes }}
+              </span>
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+
+      <!-- Resumo do Mês -->
+      <v-col cols="12" lg="4">
+        <v-card class="card-custom pa-6 h-100 d-flex flex-column justify-space-between" elevation="0">
+          <div>
+            <div class="d-flex justify-space-between align-center mb-2">
+              <h2 class="text-h6 font-weight-bold text-grey-darken-4">Resumo do Mês</h2>
+            </div>
+            <p class="text-caption text-uppercase text-grey font-weight-medium mb-4">setembro de 2026</p>
+            
+            <div class="summary-list">
+              <div class="summary-item">
+                <span class="summary-label">Vendas (Sales)</span>
+                <span class="summary-value text-grey-darken-4">{{ formatarMoeda(dados.faturamentoAtual) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Custos (Cost)</span>
+                <span class="summary-value text-error">{{ formatarMoeda(dados.gastoAtual) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Lucro (Profit)</span>
+                <span class="summary-value text-success font-weight-bold">{{ formatarMoeda(dados.lucroEstimado) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Pedidos</span>
+                <span class="summary-value text-grey-darken-4">{{ dados.pedidosAtual }}</span>
+              </div>
+              <div class="summary-item border-none">
+                <span class="summary-label">Novos clientes</span>
+                <span class="summary-value text-grey-darken-4">{{ dados.novosClientesAtual }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="best-month-box mt-6 pa-4 rounded-xl">
+            <div class="text-caption font-weight-bold text-primary mb-1">Melhor mês do período</div>
+            <div class="text-body-2 font-weight-bold text-grey-darken-4">abr/2026 — {{ formatarMoeda(16200.00) }}</div>
+            <div class="text-caption text-grey-darken-1 mt-1">Faturamento atual representa 91.6% desse recorde.</div>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Seção Inferior: Vendas por Categoria (Camisas, Calças, Moletons) -->
+    <v-row>
+      <v-col cols="12">
+        <v-card class="card-custom pa-6" elevation="0">
+          <div class="d-flex justify-space-between align-center mb-1">
+            <h2 class="text-h6 font-weight-bold text-grey-darken-4">Vendas por Categoria</h2>
+            <span class="text-caption text-grey">Últimos 90 dias</span>
+          </div>
+          <p class="text-caption text-grey-darken-1 mb-4">Faturamento segmentado por categoria cadastrada</p>
+          
+          <v-table class="categorias-table hover-table" theme="light">
+            <thead>
+              <tr>
+                <th class="text-left font-weight-bold text-grey-darken-2">CATEGORIA</th>
+                <th class="text-right font-weight-bold text-grey-darken-2">PEDIDOS</th>
+                <th class="text-right font-weight-bold text-grey-darken-2">FATURAMENTO</th>
+                <th class="text-center font-weight-bold text-grey-darken-2" style="width: 140px;">PARTICIPAÇÃO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="cat in categoriasMock" :key="cat.nome">
+                <td class="font-weight-medium text-grey-darken-4 py-3">
+                  <div class="d-flex align-center gap-2">
+                    <v-avatar color="indigo-lighten-5" size="32" rounded="lg">
+                      <v-icon icon="mdi-tag-outline" size="small" color="indigo-darken-2"></v-icon>
+                    </v-avatar>
+                    <span>{{ cat.nome }}</span>
+                  </div>
+                </td>
+                <td class="text-right text-grey-darken-2">{{ cat.pedidos }}</td>
+                <td class="text-right font-weight-bold text-grey-darken-4">{{ formatarMoeda(cat.faturamento) }}</td>
+                <td class="text-center">
+                  <v-progress-linear 
+                    :model-value="cat.porcentagem" 
+                    color="indigo" 
+                    height="6" 
+                    rounded
+                    class="bg-grey-lighten-3"
+                  ></v-progress-linear>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
-import Chart from 'chart.js/auto'
-import api from '@/services/api'
+import { ref } from 'vue'
 import StatCard from '@/components/dashboard/StatCard.vue'
-import StatusPedidoBadge from '@/components/dashboard/StatusPedidoBadge.vue'
 
-const dados = ref(null)
-const carregando = ref(true)
-const erro = ref(null)
-
-const pedidos = ref([])
-const carregandoPedidos = ref(true)
-
-const canvasReceita = ref(null)
-const canvasCategorias = ref(null)
-let chartReceita = null
-let chartCategorias = null
-
-const coresCategorias = ['#2563eb', '#7c3aed', '#0ea5e9', '#16a34a', '#ea580c', '#d97706', '#dc2626', '#0891b2']
-
-const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
-const formatarData = (d) => new Date(d).toLocaleDateString('pt-BR')
-const calcularVariacao = (atual, anterior) => (anterior ? ((atual - anterior) / anterior) * 100 : null)
-
-const mesAtualFormatado = computed(() => new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }))
-
-const melhorMes = computed(() => {
-  if (!dados.value?.serie_mensal?.length) return null
-  return [...dados.value.serie_mensal].sort((a, b) => b.faturamento - a.faturamento)[0]
+const dados = ref({
+  faturamentoAtual: 14850.40,
+  faturamentoAnterior: 12500.00,
+  pedidosAtual: 64,
+  pedidosAnterior: 57,
+  ticketMedioAtual: 232.03,
+  ticketMedioAnterior: 219.30,
+  novosClientesAtual: 18,
+  novosClientesAnterior: 17,
+  lucroEstimado: 5940.16,
+  gastoAtual: 8910.24
 })
 
-const pctDoMelhorMes = computed(() => {
-  if (!melhorMes.value || !dados.value) return 0
-  if (!melhorMes.value.faturamento) return 0
-  return Math.min(100, Math.round((dados.value.mes_atual.faturamento / melhorMes.value.faturamento) * 100))
-})
+const historicoMensal = ref([
+  { mes: 'abr/2026', receita: 16200.00, lucro: 6500.00, gasto: 9700.00 },
+  { mes: 'mai/2026', receita: 12500.00, lucro: 4800.00, gasto: 7700.00 },
+  { mes: 'jun/2026', receita: 11800.00, lucro: 4500.00, gasto: 7300.00 },
+  { mes: 'jul/2026', receita: 13400.00, lucro: 5200.00, gasto: 8200.00 },
+  { mes: 'ago/2026', receita: 13900.00, lucro: 5600.00, gasto: 8300.00 },
+  { mes: 'set/2026', receita: 14850.40, lucro: 5940.16, gasto: 8910.24 }
+])
 
-const linhasResumo = computed(() => {
-  if (!dados.value) return []
-  const serie = dados.value.serie_mensal
-  const maxFaturamento = Math.max(...serie.map((m) => m.faturamento), 1)
-  const maxPedidos = Math.max(...serie.map((m) => m.pedidos), 1)
-  const m = dados.value.mes_atual
+const mesSelecionado = ref(historicoMensal.value[5])
 
-  return [
-    { label: 'Faturamento', valor: formatarMoeda(m.faturamento), pct: Math.round((m.faturamento / maxFaturamento) * 100), cor: 'resumo-mes__barra--azul' },
-    { label: 'Lucro estimado', valor: formatarMoeda(m.lucro), pct: m.faturamento ? Math.round((m.lucro / m.faturamento) * 100) : 0, cor: 'resumo-mes__barra--verde' },
-    { label: 'Pedidos', valor: String(m.pedidos), pct: Math.round((m.pedidos / maxPedidos) * 100), cor: 'resumo-mes__barra--roxo' },
-    { label: 'Novos clientes', valor: String(m.novos_clientes), pct: Math.min(100, m.novos_clientes * 5), cor: 'resumo-mes__barra--laranja' },
-  ]
-})
+const categoriasMock = ref([
+  { nome: 'Camisas', pedidos: 34, faturamento: 6800.00, porcentagem: 45.8 },
+  { nome: 'Calças', pedidos: 22, faturamento: 5280.40, porcentagem: 35.5 },
+  { nome: 'Moletons', pedidos: 12, faturamento: 2770.00, porcentagem: 18.7 }
+])
 
-async function carregarDashboard() {
-  carregando.value = true
-  erro.value = null
-  try {
-    const { data } = await api.get('/admin/dashboard')
-    dados.value = data.data
-  } catch (e) {
-    erro.value = 'Não foi possível carregar o dashboard.'
-  } finally {
-    carregando.value = false
-  }
-
-  if (dados.value) {
-    await nextTick()
-    montarGraficoReceita()
-    montarGraficoCategorias()
-  }
+const formatarMoeda = (valor) => {
+  return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
-
-async function carregarUltimosPedidos() {
-  carregandoPedidos.value = true
-  try {
-    const { data } = await api.get('/admin/pedidos')
-    pedidos.value = (data.data ?? []).slice(0, 6)
-  } catch (e) {
-    pedidos.value = []
-  } finally {
-    carregandoPedidos.value = false
-  }
-}
-
-function montarGraficoReceita() {
-  if (!canvasReceita.value) return
-  chartReceita?.destroy()
-
-  chartReceita = new Chart(canvasReceita.value, {
-    type: 'line',
-    data: {
-      labels: dados.value.serie_mensal.map((m) => m.mes),
-      datasets: [
-        {
-          label: 'Receita', data: dados.value.serie_mensal.map((m) => m.faturamento),
-          borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: .35, borderWidth: 2.5, pointRadius: 3,
-        },
-        {
-          label: 'Lucro', data: dados.value.serie_mensal.map((m) => m.lucro),
-          borderColor: '#8b5cf6', backgroundColor: 'transparent', tension: .35, borderWidth: 2, pointRadius: 3,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, usePointStyle: true, font: { size: 11 } } } },
-      scales: {
-        y: { display: false },
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9ca3af' } },
-      },
-    },
-  })
-}
-
-function montarGraficoCategorias() {
-  if (!canvasCategorias.value) return
-  chartCategorias?.destroy()
-
-  const categorias = dados.value.categorias_mais_vendidas
-  if (!categorias.length) return
-
-  chartCategorias = new Chart(canvasCategorias.value, {
-    type: 'doughnut',
-    data: {
-      labels: categorias.map((c) => c.categoria),
-      datasets: [{
-        data: categorias.map((c) => c.faturamento),
-        backgroundColor: categorias.map((_, i) => coresCategorias[i % coresCategorias.length]),
-        borderWidth: 0,
-      }],
-    },
-    options: {
-      responsive: true,
-      cutout: '68%',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.label}: ${formatarMoeda(ctx.raw)}`,
-          },
-        },
-      },
-    },
-  })
-}
-
-onMounted(() => {
-  carregarDashboard()
-  carregarUltimosPedidos()
-})
 </script>
 
 <style scoped>
-.linha-dupla {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: .9rem;
+.dashboard-container {
+  max-width: 84rem;
+  margin: 0 auto;
 }
 
-@media (min-width: 1000px) {
-  .linha-dupla {
-    grid-template-columns: 1.6fr 1fr;
-  }
+.card-custom {
+  background-color: #ffffff !important;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid #f1f5f9;
 }
 
-.grafico-receita {
-  padding: 1.1rem;
+.legend-container {
+  gap: 1.25rem;
 }
 
-.grafico-receita__corpo {
-  margin-top: .5rem;
+.legend-item {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.resumo-mes {
-  padding: 1.1rem;
-  display: flex;
-  flex-direction: column;
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot.receita { background-color: #2563eb; }
+.dot.gasto { background-color: #dc2626; }
+.dot.lucro { background-color: #059669; }
+
+.chart-tooltip-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  color: #334155;
 }
 
-.resumo-mes__corpo {
-  display: flex;
-  flex-direction: column;
-  gap: .9rem;
-  margin-top: .4rem;
+.tooltip-values {
+  gap: 1.5rem !important;
 }
 
-.resumo-mes__linha-topo {
+/* Gráfico de colunas com altura ideal de mercado */
+.bar-chart-container {
   display: flex;
   justify-content: space-between;
-  font-size: .78rem;
-  margin-bottom: .35rem;
+  align-items: flex-end;
+  height: 240px;
+  padding: 1rem 1rem 0 1rem;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.resumo-mes__linha-topo span {
-  color: var(--ink-soft);
-  font-weight: 600;
-}
-
-.resumo-mes__linha-topo strong {
-  color: var(--ink);
-}
-
-.resumo-mes__barra--azul {
-  background: var(--blue-600);
-}
-
-.resumo-mes__barra--verde {
-  background: var(--success);
-}
-
-.resumo-mes__barra--roxo {
-  background: var(--info);
-}
-
-.resumo-mes__barra--laranja {
-  background: #ea580c;
-}
-
-.resumo-mes__destaque {
-  margin-top: .3rem;
-  padding-top: .9rem;
-  border-top: 1px solid var(--line);
-  background: var(--blue-50);
-  border-radius: var(--radius-md);
-  padding: .9rem;
-}
-
-.resumo-mes__destaque p {
-  font-size: .72rem;
-  font-weight: 700;
-  color: var(--blue-700);
-  margin: 0 0 .2rem;
-}
-
-.resumo-mes__destaque strong {
-  font-size: 1rem;
-  color: var(--blue-700);
-  display: block;
-}
-
-.resumo-mes__destaque span {
-  font-size: .68rem;
-  color: var(--blue-600);
-  opacity: .8;
-}
-
-.categorias__corpo {
-  padding: 1.1rem;
+.bar-group {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
   align-items: center;
-}
-
-.categorias__grafico {
-  width: 100%;
-  max-width: 220px;
-}
-
-.categorias__lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: .55rem;
-}
-
-.categorias__item {
-  display: flex;
-  align-items: center;
-  gap: .55rem;
-  font-size: .8rem;
-}
-
-.categorias__ponto {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.categorias__nome {
+  gap: 1rem;
+  cursor: pointer;
   flex: 1;
+}
+
+.bars-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 180px;
+  width: 100%;
+  justify-content: center;
+}
+
+.bar {
+  width: 14px;
+  border-radius: 6px 6px 0 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.bar:hover {
+  opacity: 0.85;
+  transform: scaleY(1.02);
+}
+
+.bar-receita { background-color: #2563eb; }
+.bar-gasto { background-color: #dc2626; }
+.bar-lucro { background-color: #059669; }
+
+.bar-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.bar-group:hover .bar-label {
+  color: #2563eb;
+}
+
+.best-month-box {
+  background-color: #f0f7ff;
+  border: 1px solid #dbeafe;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.summary-item.border-none {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.summary-value {
   font-weight: 600;
-  color: var(--ink);
+  font-size: 0.95rem;
 }
 
-.categorias__valor {
-  font-weight: 700;
-  color: var(--ink);
+.categorias-table {
+  background-color: transparent !important;
 }
 
-.categorias__pct {
-  color: var(--ink-faint);
-  width: 3rem;
-  text-align: right;
+.categorias-table :deep(th) {
+  color: #475569 !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em;
+  background-color: #f8fafc !important;
+  border-bottom: 2px solid #e2e8f0 !important;
 }
 
-@media (min-width: 700px) {
-  .categorias__corpo {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .categorias__grafico {
-    max-width: 240px;
-  }
+.categorias-table :deep(td) {
+  border-bottom: 1px solid #f1f5f9 !important;
+  background-color: #ffffff !important;
 }
 
-.pedidos-tabela--mobile {
-  display: block;
-}
-
-.pedidos-tabela--desktop {
-  display: none;
-}
-
-.pedidos-tabela__meta {
-  font-size: .72rem;
-  color: var(--ink-faint);
-  margin: .15rem 0 0;
-}
-
-@media (min-width: 640px) {
-  .pedidos-tabela--mobile {
-    display: none;
-  }
-
-  .pedidos-tabela--desktop {
-    display: block;
-  }
+.hover-table :deep(tbody tr:hover) {
+  background-color: #f8fafc !important;
 }
 </style>
