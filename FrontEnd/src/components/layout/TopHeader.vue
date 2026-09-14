@@ -25,7 +25,7 @@
                 <div v-if="notifAberta" class="topo__dropdown">
                     <div class="topo__dropdown-cabecalho">
                         <strong>Notificações</strong>
-                        <button @click="notifAberta = false">✕</button>
+                        <button @click="notifAberta = false" aria-label="Fechar notificações"><v-icon icon="mdi-close" size="small" /></button>
                     </div>
                     <div v-if="notificacoes.length === 0" class="topo__dropdown-vazio">Nenhuma novidade por aqui.</div>
                     <div v-for="(n, i) in notificacoes" :key="i" class="topo__dropdown-item">
@@ -54,7 +54,7 @@
     </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'

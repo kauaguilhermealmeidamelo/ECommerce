@@ -11,25 +11,25 @@
         <path d="m21 21-4.3-4.3" />
       </svg>
       <input v-model="busca" type="text" placeholder="Buscar produtos..." @keyup.enter="buscar" />
-      <button v-if="busca" class="topo__limpar-busca" @click="busca = ''" aria-label="Limpar busca">✕</button>
+      <button v-if="busca" class="topo__limpar-busca" @click="busca = ''" aria-label="Limpar busca"><v-icon icon="mdi-close" size="small" /></button>
     </div>
 
     <div class="topo__acoes">
       <router-link :to="{ name: 'carrinho' }" class="topo__icone-botao" aria-label="Carrinho">
-        🛒
+        <v-icon icon="mdi-cart-outline" />
         <span v-if="quantidadeCarrinho > 0" class="topo__contador">{{ quantidadeCarrinho }}</span>
       </router-link>
 
       <div class="topo__conta">
         <button class="topo__usuario" @click="menuAberto = !menuAberto">
-          <span class="avatar">{{ auth.autenticado ? iniciais : '👤' }}</span>
+          <span class="avatar"><span v-if="auth.autenticado">{{ iniciais }}</span><v-icon v-else icon="mdi-account-outline" size="small" /></span>
           <span class="topo__usuario-nome">{{ auth.autenticado ? auth.primeiroNome : 'Entrar' }}</span>
         </button>
 
         <div v-if="menuAberto" class="topo__dropdown" @click="menuAberto = false">
           <template v-if="auth.autenticado">
-            <router-link :to="{ name: 'meus-pedidos' }" class="topo__dropdown-item-link">📦 Meus pedidos</router-link>
-            <button class="topo__dropdown-sair" @click="sair">🚪 Sair</button>
+            <router-link :to="{ name: 'meus-pedidos' }" class="topo__dropdown-item-link"><v-icon icon="mdi-package-variant-closed" size="small" /> Meus pedidos</router-link>
+            <button class="topo__dropdown-sair" @click="sair"><v-icon icon="mdi-logout" size="small" /> Sair</button>
           </template>
           <template v-else>
             <router-link :to="{ name: 'login-cliente' }" class="topo__dropdown-item-link">Entrar</router-link>

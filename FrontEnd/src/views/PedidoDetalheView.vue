@@ -1,6 +1,6 @@
 <template>
   <section class="pagina">
-    <router-link :to="{ name: 'meus-pedidos' }" class="pagina__voltar">← Meus pedidos</router-link>
+    <router-link :to="{ name: 'meus-pedidos' }" class="pagina__voltar"><v-icon icon="mdi-arrow-left" size="small" /> Meus pedidos</router-link>
 
     <div v-if="carregando" class="estado">Carregando pedido...</div>
     <p v-else-if="erro" class="estado estado--erro">{{ erro }}</p>

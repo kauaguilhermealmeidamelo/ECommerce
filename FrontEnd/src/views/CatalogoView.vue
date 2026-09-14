@@ -48,7 +48,7 @@
           <h2>{{ secao.categoria.nome }}</h2>
           <button v-if="secao.total > secao.produtos.length" class="secao-categoria__ver-tudo"
             @click="categoriaSelecionada = Number(secao.categoria.id)">
-            Ver tudo →
+            Ver tudo <v-icon icon="mdi-arrow-right" size="small" />
           </button>
         </div>
 

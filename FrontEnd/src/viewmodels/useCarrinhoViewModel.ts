@@ -9,6 +9,7 @@ export interface ItemCarrinho {
   produto?: {
     nome: string
     imagem_url?: string
+    imagens?: Array<{ url?: string }>
     [key: string]: any
   }
   [key: string]: any
@@ -26,7 +27,7 @@ export function useCarrinhoViewModel() {
   const itens = computed<ItemCarrinho[]>(() => carrinho.value?.itens ?? [])
   
   const subtotal = computed<number>(() => 
-    itens.value.reduce((soma, i) => soma + (i.quantidade * i.preco_unitario), 0)
+    itens.value.reduce((soma, i) => soma + (i.quantidade * Number(i.preco_unitario ?? i.produto?.preco ?? 0)), 0)
   )
 
   const formatarMoeda = (v: number) => 

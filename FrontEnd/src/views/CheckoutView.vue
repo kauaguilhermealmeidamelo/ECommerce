@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <router-link :to="{ name: 'carrinho' }" class="btn-voltar">← Voltar ao carrinho</router-link>
+    <router-link :to="{ name: 'carrinho' }" class="btn-voltar"><v-icon icon="mdi-arrow-left" size="small" /> Voltar ao carrinho</router-link>
   </div>
 </template>
 

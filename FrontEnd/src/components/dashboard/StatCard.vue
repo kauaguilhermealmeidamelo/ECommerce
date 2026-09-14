@@ -19,7 +19,7 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 defineProps({
   title: { type: String, required: true },
   value: { type: [String, Number], required: true },

@@ -9,7 +9,7 @@
       </div>
       <div>
         <v-btn color="indigo" prepend-icon="mdi-plus" class="text-none font-weight-medium rounded-lg px-5" elevation="0"
-          @click="dialogAdicionar = true">
+          @click="abrirCadastroProduto">
           Adicionar Produto
         </v-btn>
       </div>
@@ -25,7 +25,7 @@
         </v-col>
         <v-col cols="12" md="4" class="d-flex justify-md-end align-center mt-3 mt-md-0 gap-3">
           <v-btn variant="outlined" color="grey-darken-2" prepend-icon="mdi-filter-variant"
-            class="text-none rounded-lg font-weight-medium px-5" style="border-color: #cbd5e1;">
+            rounded="lg" class="filtro-btn text-none font-weight-medium px-5">
             Filtrar
           </v-btn>
         </v-col>
@@ -73,23 +73,24 @@
                   <v-icon icon="mdi-tag-outline" size="small" color="indigo-darken-2"></v-icon>
                 </v-avatar>
                 <div>
-                  <div class="font-weight-bold text-grey-darken-4">{{ produto.nome || produto.name }}</div>
+                  <div class="font-weight-bold text-grey-darken-4">{{ produto.nome }}</div>
                   <div class="text-caption text-grey">SKU: {{ produto.sku || 'N/A' }}</div>
                 </div>
               </div>
             </td>
-            <td class="text-grey-darken-2 font-weight-medium">{{ produto.categoria || produto.category || 'Geral' }}
+            <td class="text-grey-darken-2 font-weight-medium">{{ produto.categoria || 'Geral' }}
             </td>
-            <td class="text-right font-weight-bold text-grey-darken-4">{{ formatarMoeda(produto.preco || produto.price)
+            <td class="text-right font-weight-bold text-grey-darken-4">{{ formatarMoeda(produto.preco)
               }}</td>
             <td class="text-right text-grey-darken-2">
-              <v-chip :color="(produto.estoque ?? produto.stock) > 0 ? 'success' : 'error'" size="x-small"
+              <v-chip :color="produto.estoque > 0 ? 'success' : 'error'" size="x-small"
                 variant="flat" class="font-weight-bold">
-                {{ produto.estoque ?? produto.stock ?? 0 }} un.
+                {{ produto.estoque ?? 0 }} un.
               </v-chip>
             </td>
             <td class="text-center">
-              <v-btn icon="mdi-pencil-outline" size="small" variant="text" color="grey-darken-2" />
+              <v-btn icon="mdi-pencil-outline" size="small" variant="text" color="grey-darken-2"
+                aria-label="Editar produto" @click="editarProduto(produto.id)" />
               <v-btn icon="mdi-delete-outline" size="small" variant="text" color="error"
                 @click="deletarProduto(produto.id)" />
             </td>
@@ -102,142 +103,50 @@
       </v-table>
     </v-card>
 
-    <!-- Modal Premium para Adicionar Produto -->
-    <v-dialog v-model="dialogAdicionar" max-width="500px" transition="dialog-bottom-transition">
-      <v-card class="modal-card pa-6" elevation="0">
-        <div class="d-flex justify-space-between align-center mb-6">
-          <h3 class="text-h5 font-weight-bold text-grey-darken-4 mb-0">Novo Produto</h3>
-          <v-btn icon="mdi-close" variant="text" size="small" color="grey-darken-1"
-            @click="dialogAdicionar = false"></v-btn>
-        </div>
-
-        <div class="form-group mb-4">
-          <label class="form-label">Nome do Produto</label>
-          <v-text-field v-model="novoProduto.nome" variant="solo" flat density="comfortable" class="saas-input"
-            autocomplete="off" hide-details />
-        </div>
-
-        <div class="form-group mb-4">
-          <label class="form-label">Categoria</label>
-          <v-text-field v-model="novoProduto.categoria" variant="solo" flat density="comfortable" class="saas-input"
-            autocomplete="off" hide-details />
-        </div>
-
-        <div class="form-group mb-4">
-          <label class="form-label">Preço (R$)</label>
-          <v-text-field v-model="novoProduto.preco" type="number" variant="solo" flat density="comfortable"
-            class="saas-input" autocomplete="off" hide-details />
-        </div>
-
-        <div class="form-group mb-6">
-          <label class="form-label">Quantidade em Estoque</label>
-          <v-text-field v-model="novoProduto.estoque" type="number" variant="solo" flat density="comfortable"
-            class="saas-input" autocomplete="off" hide-details />
-        </div>
-
-        <div class="d-flex justify-end gap-3 pt-2">
-          <v-btn variant="text" color="grey-darken-2" class="text-none font-weight-medium"
-            @click="dialogAdicionar = false">Cancelar</v-btn>
-          <v-btn color="indigo" class="text-none font-weight-medium px-6" elevation="0" :loading="salvando"
-            @click="salvarProduto">Salvar Cadastro</v-btn>
-        </div>
+    <v-dialog v-model="dialogCadastro" width="640px" max-width="calc(100vw - 32px)" max-height="90vh" scrollable>
+      <v-card class="produto-dialog-card">
+        <v-card-title class="d-flex align-center justify-space-between px-6 py-4">
+          <span class="text-h6 font-weight-bold">Novo produto</span>
+          <v-btn icon="mdi-close" variant="text" aria-label="Fechar" @click="dialogCadastro = false" />
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-0">
+          <ProdutoFormView v-model:dialog="dialogCadastro" @salvo="produtoSalvo" @cancelado="dialogCadastro = false" />
+        </v-card-text>
       </v-card>
     </v-dialog>
   </v-container>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useProdutoListViewModel } from '@/viewmodels/useProdutoListViewModel'
+import ProdutoFormView from '@/views/ProdutoFormView.vue'
 
-const busca = ref('')
-const produtos = ref([])
-const carregando = ref(true)
-const erro = ref(false)
+const dialogCadastro = ref(false)
+const router = useRouter()
 
-const dialogAdicionar = ref(false)
-const salvando = ref(false)
-const novoProduto = ref({
-  nome: '',
-  categoria: '',
-  preco: '',
-  estoque: ''
-})
+const {
+  filtroTexto: busca,
+  carregando,
+  erro,
+  produtosFiltrados,
+  recarregar: carregarProdutos,
+  salvarProduto,
+  deletarProduto,
+} = useProdutoListViewModel()
 
-// Constante com a URL base do seu Backend Laravel
-const API_URL = 'http://localhost:8000/api/admin/produtos'
-
-// Configuração padrão de Headers para todas as requisições
-const getHeaders = () => ({
-  'Authorization': `Bearer ${localStorage.getItem('token')}`,
-  'Accept': 'application/json',
-  'Content-Type': 'application/json'
-})
-
-const carregarProdutos = async () => {
-  carregando.value = true
-  erro.value = false
-  try {
-    const resposta = await axios.get(API_URL, { headers: getHeaders() })
-    produtos.value = Array.isArray(resposta.data) ? resposta.data : (resposta.data.produtos || [])
-  } catch (err) {
-    console.error('Erro ao buscar produtos:', err)
-    erro.value = true
-  } finally {
-    carregando.value = false
-  }
+function abrirCadastroProduto() { dialogCadastro.value = true }
+function editarProduto(id: number) { router.push({ name: 'produto-editar', params: { id } }) }
+async function produtoSalvo() {
+  dialogCadastro.value = false
+  await carregarProdutos()
 }
 
-const salvarProduto = async () => {
-  salvando.value = true
-  try {
-    // Apontando explicitamente para a URL do Laravel
-    await axios.post(API_URL, novoProduto.value, { headers: getHeaders() })
-
-    dialogAdicionar.value = false
-    novoProduto.value = { nome: '', categoria: '', preco: '', estoque: '' }
-    carregarProdutos() // Recarrega a tabela após salvar
-  } catch (err) {
-    console.error('Erro ao salvar produto:', err)
-
-    // Tratamento de erro melhorado para exibir o que o Laravel recusou
-    if (err.response && err.response.status === 422) {
-      alert('Erro de validação: Verifique se todos os campos foram preenchidos corretamente.')
-    } else {
-      alert('Erro ao cadastrar produto. Verifique o console do backend.')
-    }
-  } finally {
-    salvando.value = false
-  }
-}
-
-const deletarProduto = async (id) => {
-  if (!confirm('Deseja realmente excluir este produto?')) return
-  try {
-    await axios.delete(`${API_URL}/${id}`, { headers: getHeaders() })
-    carregarProdutos()
-  } catch (err) {
-    console.error('Erro ao deletar produto:', err)
-  }
-}
-
-const produtosFiltrados = computed(() => {
-  if (!busca.value) return produtos.value
-  const termo = busca.value.toLowerCase()
-  return produtos.value.filter(p => {
-    const nome = (p.nome || p.name || '').toLowerCase()
-    const categoria = (p.categoria || p.category || '').toLowerCase()
-    return nome.includes(termo) || categoria.includes(termo)
-  })
-})
-
-const formatarMoeda = (valor) => {
+const formatarMoeda = (valor: number | string | null | undefined) => {
   return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
-
-onMounted(() => {
-  carregarProdutos()
-})
 </script>
 
 <style scoped>
@@ -262,6 +171,11 @@ onMounted(() => {
   border: 1px solid #e2e8f0;
 }
 
+.produto-dialog-card {
+  overflow: hidden;
+  max-height: 90vh;
+}
+
 /* Rótulos dos inputs do modal */
 .form-group {
   display: flex;
@@ -278,11 +192,17 @@ onMounted(() => {
 
 /* Campos de Input SaaS Premium (Substitui o outlined nativo feio) */
 .saas-input :deep(.v-field) {
-  border-radius: 0.75rem !important;
+  border-radius: 0.7rem !important;
   background-color: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
   transition: all 0.2s ease;
+}
+
+.filtro-btn {
+  min-height: 42px;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: .7rem !important;
 }
 
 .saas-input :deep(.v-field--focused) {

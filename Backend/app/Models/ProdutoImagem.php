@@ -22,6 +22,6 @@ class ProdutoImagem extends Model
 
     public function getUrlAttribute(): string
     {
-        return Storage::disk('public')->url($this->caminho);
+        return url(Storage::url($this->caminho));
     }
 }

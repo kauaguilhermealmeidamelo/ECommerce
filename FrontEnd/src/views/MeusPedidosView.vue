@@ -23,7 +23,7 @@
           </p>
           <div class="pedido-card__base">
             <strong>{{ formatarMoeda(pedido.total) }}</strong>
-            <span class="pedido-card__ver">Ver detalhes e rastreio →</span>
+            <span class="pedido-card__ver">Ver detalhes e rastreio <v-icon icon="mdi-arrow-right" size="small" /></span>
           </div>
         </router-link>
       </li>

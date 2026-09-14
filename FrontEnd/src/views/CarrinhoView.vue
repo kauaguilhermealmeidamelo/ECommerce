@@ -12,14 +12,16 @@
     <template v-else>
       <ul class="itens">
         <li v-for="item in itens" :key="item.id" class="item">
-          <img :src="item.produto?.imagem_url" :alt="item.produto?.nome" class="item__imagem" />
+          <img v-if="item.produto?.imagens?.[0]?.url || item.produto?.imagem_url"
+            :src="item.produto?.imagens?.[0]?.url || item.produto?.imagem_url" :alt="item.produto?.nome" class="item__imagem" />
+          <div v-else class="item__imagem item__imagem--vazia"><v-icon icon="mdi-image-outline" /></div>
           <div class="item__info">
             <strong>{{ item.produto?.nome }}</strong>
             <span v-if="item.tamanho" class="item__tamanho">Tamanho: {{ item.tamanho }}</span>
-            <span class="item__preco">{{ formatarMoeda(item.preco_unitario) }}</span>
+            <span class="item__preco">{{ formatarMoeda(Number(item.preco_unitario ?? item.produto?.preco ?? 0)) }}</span>
           </div>
           <div class="item__acoes">
-            <button class="item__remover" @click="remover(item)" aria-label="Remover">✕</button>
+            <button class="item__remover" @click="remover(item)" aria-label="Remover"><v-icon icon="mdi-delete-outline" size="small" /></button>
             <div class="quantidade">
               <button @click="alterarQuantidade(item, item.quantidade - 1)" :disabled="item.quantidade <= 1">−</button>
               <span>{{ item.quantidade }}</span>

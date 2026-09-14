@@ -59,9 +59,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import api from '@/api'
+import apiLoja from '@/services/apiLoja'
 import ProdutoCarrossel from '@/components/ProdutoCarrossel.vue'
 
 const props = defineProps({ produto: { type: Object, required: true } })
@@ -85,9 +85,9 @@ const podeComprar = computed(() => {
 const emit = defineEmits(['adicionar-carrinho'])
 
 async function comprar() {
-  await api.post('/carrinho/itens', {
+  await apiLoja.post('/carrinho/itens', {
     produto_id: props.produto.id,
-    variacao_nome: variacaoSelecionada.value?.nome ?? null,
+    tamanho: variacaoSelecionada.value?.nome ?? null,
     quantidade: quantidade.value,
   })
 
@@ -102,7 +102,7 @@ async function buscarFrete() {
   if (!cep.value) return
   buscandoFrete.value = true
   try {
-    const { data } = await api.get('/frete/opcoes', {
+    const { data } = await apiLoja.get('/frete/opcoes', {
       params: { cep: cep.value, produto_id: props.produto.id, quantidade: quantidade.value },
     })
     opcoesFrete.value = data.data

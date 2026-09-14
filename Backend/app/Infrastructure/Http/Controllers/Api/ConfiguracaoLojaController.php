@@ -3,7 +3,7 @@
 namespace App\Infrastructure\Http\Controllers\Api;
 
 use App\Infrastructure\Http\Controllers\Controller;
-use app\Domain\Pagamento\UseCases\ConfiguracaoLojaUseCase;
+use App\Domain\Pagamento\UseCases\ConfiguracaoLojaUseCase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ConfiguracaoLoja;

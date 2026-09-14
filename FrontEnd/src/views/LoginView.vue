@@ -24,7 +24,7 @@
     <div class="autenticacao__divisor"><span>ou</span></div>
 
     <a :href="urlGoogle" class="btn btn--google btn--bloco">
-      <span>🔵</span> Entrar com Google
+      <v-icon icon="mdi-google" size="small" /> Entrar com Google
     </a>
 
     <p class="autenticacao__rodape">

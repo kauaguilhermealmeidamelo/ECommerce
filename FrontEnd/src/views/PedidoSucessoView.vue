@@ -1,6 +1,6 @@
 <template>
   <div class="placeholder">
-    <h1 class="font-display">Pedido confirmado 🎉</h1>
+    <h1 class="font-display"><v-icon icon="mdi-check-circle-outline" /> Pedido confirmado</h1>
 
     <p v-if="numeroPedido">
       O número do seu pedido é <strong>#{{ numeroPedido }}</strong>. Obrigado pela compra!

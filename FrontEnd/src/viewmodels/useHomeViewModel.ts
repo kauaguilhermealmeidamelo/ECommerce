@@ -5,8 +5,8 @@ import apiLoja from '@/services/apiLoja'
 export function useHomeViewModel() {
   const categorias = ref<any[]>([])
   const carregando = ref(true)
-  const achadinhos = ref<any[]>([])
-  const carregandoAchadinhos = ref(true)
+  const maisVendidos = ref<any[]>([])
+  const carregandoMaisVendidos = ref(true)
 
   function achatarFolhas(lista: any[]): any[] {
     const folhas: any[] = []
@@ -30,15 +30,15 @@ export function useHomeViewModel() {
     }
   }
 
-  async function carregarAchadinhos() {
-    carregandoAchadinhos.value = true
+  async function carregarMaisVendidos() {
+    carregandoMaisVendidos.value = true
     try {
-      const { data } = await apiLoja.get('/produtos/achadinhos')
-      achadinhos.value = data.data.slice(0, 8)
+      const { data } = await apiLoja.get('/produtos/mais-vendidos')
+      maisVendidos.value = data.data
     } catch {
-      achadinhos.value = []
+      maisVendidos.value = []
     } finally {
-      carregandoAchadinhos.value = false
+      carregandoMaisVendidos.value = false
     }
   }
 
@@ -48,15 +48,15 @@ export function useHomeViewModel() {
 
   onMounted(() => {
     carregarCategorias()
-    carregarAchadinhos()
+    carregarMaisVendidos()
   })
 
   return {
     tema,
     categorias,
     carregando,
-    achadinhos,
-    carregandoAchadinhos,
+    maisVendidos,
+    carregandoMaisVendidos,
     adicionarAoCarrinho,
   }
 }

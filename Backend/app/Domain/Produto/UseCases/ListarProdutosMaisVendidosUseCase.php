@@ -2,16 +2,18 @@
 
 namespace App\Domain\Produto\UseCases;
 
+use App\Domain\Produto\Entities\Produto;
 use App\Domain\Produto\Repositories\ProdutoRepositoryInterface;
 
-class ListarProdutosAtivosUseCase
+class ListarProdutosMaisVendidosUseCase
 {
     public function __construct(
         private ProdutoRepositoryInterface $produtoRepository
     ) {}
 
-    public function executar(?int $categoriaId = null): array
+    /** @return Produto[] */
+    public function executar(int $limite = 8): array
     {
-        return $this->produtoRepository->listarTodos($categoriaId);
+        return $this->produtoRepository->listarMaisVendidos($limite);
     }
 }

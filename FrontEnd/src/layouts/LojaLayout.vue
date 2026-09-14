@@ -1,5 +1,5 @@
 <template>
-  <div class="layout">
+  <div v-if="lojaCarregada" class="layout">
     <CabecalhoLoja ref="cabecalhoRef" />
 
     <main class="layout__conteudo">
@@ -11,11 +11,15 @@
     <NavInferior :itens="itensNav" />
     <NavPilula :itens="itensNav" />
   </div>
+  <div v-else class="layout layout--carregando" aria-busy="true">
+    <div class="layout__carregando"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useClienteAuthStore } from '@/stores/clienteAuth'
+import { carregarTemaDaLoja } from '@/theme/tema'
 import CabecalhoLoja from '@/components/CabecalhoLoja.vue'
 import RodapeLoja from '@/components/RodapeLoja.vue'
 import NavInferior from '@/components/NavInferior.vue'
@@ -27,6 +31,7 @@ interface CabecalhoLojaInstance {
 
 const auth = useClienteAuthStore()
 const cabecalhoRef = ref<CabecalhoLojaInstance | null>(null)
+const lojaCarregada = ref(false)
 
 // 4 itens fixos — mesma ideia do painel admin (poucos itens, sempre
 // visíveis). "Conta" muda de rota dependendo se o cliente já está logado.
@@ -43,6 +48,16 @@ function atualizarCarrinho() {
   cabecalhoRef.value?.carregarQuantidadeCarrinho()
 }
 
+onMounted(async () => {
+  try {
+    await carregarTemaDaLoja()
+  } catch {
+    // A loja ainda monta com valores neutros se a API estiver indisponível.
+  } finally {
+    lojaCarregada.value = true
+  }
+})
+
 defineExpose({ atualizarCarrinho })
 </script>
 
@@ -56,5 +71,14 @@ defineExpose({ atualizarCarrinho })
 
 .layout__conteudo {
   flex: 1;
+}
+
+.layout--carregando {
+  min-height: 100vh;
+  background: var(--cor-fundo);
+}
+
+.layout__carregando {
+  min-height: 100vh;
 }
 </style>

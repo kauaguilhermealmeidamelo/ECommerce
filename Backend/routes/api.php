@@ -7,6 +7,8 @@ use App\Infrastructure\Http\Controllers\Api\CheckoutController;
 use App\Infrastructure\Http\Controllers\Api\ClienteController;
 use App\Infrastructure\Http\Controllers\Api\ClientePedidoController;
 use App\Infrastructure\Http\Controllers\Api\ConfiguracaoLojaController;
+use App\Infrastructure\Http\Controllers\Api\ConfiguracaoPagamentoController;
+use App\Infrastructure\Http\Controllers\Api\ConfiguracaoSegurancaController;
 use App\Infrastructure\Http\Controllers\Api\DashboardController;
 use App\Infrastructure\Http\Controllers\Api\EntregaController;
 use App\Infrastructure\Http\Controllers\Api\EnvioController;
@@ -35,7 +37,7 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 |--------------------------------------------------------------------------
 */
 Route::get('/produtos', [ProdutoController::class, 'index']);
-Route::get('/produtos/achadinhos', [ProdutoController::class, 'achadinhos']);
+Route::get('/produtos/mais-vendidos', [ProdutoController::class, 'maisVendidos']);
 Route::get('/produtos/{produto}', [ProdutoController::class, 'show']);
 
 Route::get('/categorias/arvore', [CategoriaController::class, 'arvore']);
@@ -108,7 +110,14 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 
     Route::get('/loja', [InformacaoLojaController::class, 'mostrar']);
     Route::put('/loja', [InformacaoLojaController::class, 'atualizar']);
+    Route::post('/loja', [InformacaoLojaController::class, 'atualizar']);
 
     Route::get('/configuracoes-loja', [ConfiguracaoLojaController::class, 'mostrar']);
     Route::put('/configuracoes-loja', [ConfiguracaoLojaController::class, 'atualizar']);
+
+    Route::get('/configuracoes-pagamento', [ConfiguracaoPagamentoController::class, 'mostrar']);
+    Route::put('/configuracoes-pagamento', [ConfiguracaoPagamentoController::class, 'atualizar']);
+
+    Route::get('/configuracoes-seguranca', [ConfiguracaoSegurancaController::class, 'mostrar']);
+    Route::put('/configuracoes-seguranca', [ConfiguracaoSegurancaController::class, 'atualizar']);
 });

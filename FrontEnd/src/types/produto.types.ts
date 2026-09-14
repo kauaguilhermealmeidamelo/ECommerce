@@ -2,14 +2,17 @@ export interface Produto {
     id: number
     nome: string
     preco: number
-    categoriaId: number
+    categoriaId?: number | null
+    categoria?: string | null
+    sku?: string | null
     estoque: number
-    ativo: boolean
+    ativo?: boolean
 }
 
 export interface NovoProdutoPayload {
     nome: string
     preco: number
-    categoriaId: number
+    categoria_id?: number | null
     estoque: number
+    categoria?: string
 }

@@ -1,10 +1,15 @@
+import { reactive } from 'vue'
+import apiLoja from '@/services/apiLoja'
+
 export const temaAtual = {
   nome: 'default-admin',
   modo: 'light',
 }
 
-export const tema = {
+export const tema = reactive({
   nome: 'Nome da Loja',
+  logo: '',
+  banner: '',
 
   cores: {
     fundo: '#faf8f4',
@@ -26,5 +31,13 @@ export const tema = {
     larguraMaxima: '1100px',
   },
 
-  logo: '/logo.svg',
+})
+
+export async function carregarTemaDaLoja(): Promise<void> {
+  const { data } = await apiLoja.get('/loja')
+  const loja = data.data
+
+  tema.nome = loja?.nome || 'Nome da Loja'
+  tema.logo = loja?.logo_url || ''
+  tema.banner = loja?.banner_url || ''
 }

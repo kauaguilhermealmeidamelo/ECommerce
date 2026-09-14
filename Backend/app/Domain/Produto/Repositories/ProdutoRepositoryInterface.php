@@ -1,16 +1,14 @@
 <?php
 
-namespace App\Domain\Produtos\Repositories;
+namespace App\Domain\Produto\Repositories;
 
-use App\Domain\Produtos\Entities\Produto;
+use App\Domain\Produto\Entities\Produto;
 
 interface ProdutoRepositoryInterface
 {
     public function obterPorId(int $id): ?Produto;
-
-    public function listarTodos(): array;
-
+    public function listarTodos(?int $categoriaId = null): array;
+    public function listarMaisVendidos(int $limite = 8): array;
     public function salvar(Produto $produto): Produto;
-
     public function deletar(int $id): bool;
 }

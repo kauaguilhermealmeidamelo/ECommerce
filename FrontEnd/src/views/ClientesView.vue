@@ -11,7 +11,7 @@
     </div>
 
     <p class="aviso-cadastro">
-      ℹ️ Clientes se cadastram sozinhos pela loja (login/criação de conta no storefront). Não existe cadastro manual
+      <v-icon icon="mdi-information-outline" size="small" /> Clientes se cadastram sozinhos pela loja (login/criação de conta no storefront). Não existe cadastro manual
       aqui — esta tela é só consulta.
     </p>
 

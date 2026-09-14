@@ -26,7 +26,7 @@ const routes = [
         children: [
             { path: '', name: 'dashboard', component: () => import('@/views/DashboardView.vue') },
             { path: 'produtos', name: 'produtos', component: () => import('@/views/ProdutosView.vue') },
-            { path: 'produtos/novo', name: 'produto-novo', component: () => import('@/views/ProdutoFormView.vue') },
+            { path: 'produtos/novo', redirect: { name: 'produtos' } },
             {
                 path: 'produtos/:id/editar',
                 name: 'produto-editar',

@@ -5,7 +5,7 @@
         <div class="modal__caixa" :class="`modal__caixa--${tamanho}`">
           <div class="modal__cabecalho">
             <h3>{{ titulo }}</h3>
-            <button class="modal__fechar" @click="$emit('fechar')" aria-label="Fechar">✕</button>
+            <button class="modal__fechar" @click="$emit('fechar')" aria-label="Fechar"><v-icon icon="mdi-close" size="small" /></button>
           </div>
           <div class="modal__corpo">
             <slot />

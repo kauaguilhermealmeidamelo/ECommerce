@@ -3,8 +3,8 @@
 namespace App\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Domain\Produtos\Repositories\ProdutoRepositoryInterface;
-use App\Infrastructure\Persistence\EloquentProdutoRepository;
+use App\Domain\Produto\Repositories\ProdutoRepositoryInterface;
+use App\Infrastructure\Persistence\Eloquent\Repositories\EloquentProdutoRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {

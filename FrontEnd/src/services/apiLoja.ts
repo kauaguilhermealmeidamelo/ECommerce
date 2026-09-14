@@ -15,8 +15,8 @@ apiLoja.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`
   }
 
-  // Reaproveita o mesmo X-Session-Id do carrinho — necessário pro merge
-  // guest→autenticado funcionar mesmo em chamadas de conta/pedidos.
+  // Reaproveita o mesmo X-Session-Id do carrinho para permitir o merge
+  // guest-to-authenticated em chamadas de conta e pedidos.
   let sessaoId = localStorage.getItem('loja_sessao_id')
   if (!sessaoId) {
     sessaoId = crypto.randomUUID()

@@ -1,63 +1,89 @@
 <?php
 
-namespace App\Infrastructure\Persistence;
+namespace App\Infrastructure\Persistence\Eloquent\Repositories;
 
-use App\Domain\Produtos\Entities\Produto;
-use App\Domain\Produtos\Repositories\ProdutoRepositoryInterface;
-use App\Models\Produto as ProdutoModel;
+use App\Domain\Produto\Repositories\ProdutoRepositoryInterface;
+use App\Domain\Produto\Entities\Produto;
+use App\Infrastructure\Persistence\Eloquent\Models\ProdutoModel;
+use App\Models\ProdutoImagem;
+use App\Models\ProdutoVariacao;
+use App\Models\Categoria;
+use App\Enums\StatusPedido;
+use Illuminate\Support\Facades\DB;
 
 class EloquentProdutoRepository implements ProdutoRepositoryInterface
 {
     public function obterPorId(int $id): ?Produto
     {
-        $model = ProdutoModel::with(['variacoes', 'imagens'])->find($id);
-
-        if (!$model) {
-            return null;
-        }
-
-        return $this->mapearParaDominio($model);
+        $model = ProdutoModel::find($id);
+        return $model ? $this->toEntity($model) : null;
     }
 
-    public function listarTodos(): array
+    public function listarTodos(?int $categoriaId = null): array
     {
-        $models = ProdutoModel::with(['variacoes', 'imagens'])->get();
+        return ProdutoModel::query()
+            ->when($categoriaId !== null, fn ($query) => $query->where('categoria_id', $categoriaId))
+            ->get()
+            ->map(fn($model) => $this->toEntity($model))
+            ->toArray();
+    }
 
-        return $models->map(fn($model) => $this->mapearParaDominio($model))->toArray();
+    public function listarMaisVendidos(int $limite = 8): array
+    {
+        $statusValidos = array_map(
+            fn (StatusPedido $status) => $status->value,
+            StatusPedido::statusDeVendaValida()
+        );
+
+        $ids = DB::table('itens_pedido')
+            ->join('pedidos', 'pedidos.id', '=', 'itens_pedido.pedido_id')
+            ->whereIn('pedidos.status', $statusValidos)
+            ->select('itens_pedido.produto_id')
+            ->selectRaw('SUM(itens_pedido.quantidade) as quantidade_vendida')
+            ->groupBy('itens_pedido.produto_id')
+            ->orderByDesc('quantidade_vendida')
+            ->limit($limite)
+            ->pluck('produto_id')
+            ->all();
+
+        if (!$ids) return [];
+
+        $produtos = ProdutoModel::whereIn('id', $ids)->get()->keyBy('id');
+
+        return array_values(array_filter(array_map(
+            fn (int $id) => isset($produtos[$id]) ? $this->toEntity($produtos[$id]) : null,
+            $ids
+        )));
+    }
+
+    public function listarAtivos(): array
+    {
+        return ProdutoModel::where('ativo', true)
+            ->get()
+            ->map(fn($model) => $this->toEntity($model))
+            ->toArray();
     }
 
     public function salvar(Produto $produto): Produto
     {
-        // Salva ou atualiza o produto principal
         $model = ProdutoModel::updateOrCreate(
-            ['id' => $produto->id],
+            ['id' => $produto->id ?? null],
             [
                 'nome' => $produto->nome,
-                'descricao' => $produto->descricao,
                 'preco' => $produto->preco,
-                'preco_custo' => $produto->precoCusto,
+                'preco_custo' => $produto->precoCusto ?? 0,
                 'estoque' => $produto->estoque,
-                'ativo' => $produto->ativo,
                 'categoria_id' => $produto->categoriaId,
-                'peso' => $produto->peso,
-                'altura' => $produto->altura,
-                'largura' => $produto->largura,
-                'comprimento' => $produto->comprimento,
+                'peso_gramas' => $produto->peso !== null ? (int) round($produto->peso * 1000) : null,
+                'altura_cm' => $produto->altura !== null ? (int) round($produto->altura) : null,
+                'largura_cm' => $produto->largura !== null ? (int) round($produto->largura) : null,
+                'comprimento_cm' => $produto->comprimento !== null ? (int) round($produto->comprimento) : null,
+                'descricao' => $produto->descricao ?? null,
+                'ativo' => $produto->ativo ?? true,
             ]
         );
 
-        // Sincroniza as variações dinâmicas
-        $model->variacoes()->delete();
-        foreach ($produto->variacoes as $variacao) {
-            $model->variacoes()->create([
-                'nome' => $variacao['nome'], // Nome/Atributo livre criado pelo lojista (ex: Tamanho, Voltagem, Sabor)
-                'preco' => $variacao['preco'] ?? $produto->preco,
-                'estoque' => $variacao['estoque'] ?? 0,
-            ]);
-        }
-
-        $produto->id = $model->id;
-        return $produto;
+        return $this->toEntity($model);
     }
 
     public function deletar(int $id): bool
@@ -65,31 +91,40 @@ class EloquentProdutoRepository implements ProdutoRepositoryInterface
         return ProdutoModel::destroy($id) > 0;
     }
 
-    private function mapearParaDominio(ProdutoModel $model): Produto
+    private function toEntity(ProdutoModel $model): Produto
     {
         return new Produto(
             id: $model->id,
             nome: $model->nome,
-            descricao: $model->descricao ?? '',
             preco: (float) $model->preco,
-            precoCusto: $model->preco_custo ? (float) $model->preco_custo : null,
             estoque: (int) $model->estoque,
-            ativo: (bool) $model->ativo,
             categoriaId: $model->categoria_id,
-            peso: $model->peso ? (float) $model->peso : null,
-            altura: $model->altura ? (float) $model->altura : null,
-            largura: $model->largura ? (float) $model->largura : null,
-            comprimento: $model->comprimento ? (float) $model->comprimento : null,
-            variacoes: $model->variacoes->map(fn($v) => [
-                'id' => $v->id,
-                'nome' => $v->nome,
-                'preco' => (float) $v->preco,
-                'estoque' => (int) $v->estoque,
-            ])->toArray(),
-            imagens: $model->imagens->map(fn($i) => [
-                'id' => $i->id,
-                'url' => $i->url,
-            ])->toArray()
+            categoria: Categoria::find($model->categoria_id)?->nome ?? 'Geral',
+            precoCusto: $model->preco_custo !== null ? (float) $model->preco_custo : null,
+            peso: $model->peso_gramas !== null ? (float) $model->peso_gramas / 1000 : null,
+            altura: $model->altura_cm !== null ? (float) $model->altura_cm : null,
+            largura: $model->largura_cm !== null ? (float) $model->largura_cm : null,
+            comprimento: $model->comprimento_cm !== null ? (float) $model->comprimento_cm : null,
+            sku: $model->sku ?? null,
+            descricao: $model->descricao ?? null,
+            variacoes: ProdutoVariacao::where('produto_id', $model->id)
+                ->orderBy('id')
+                ->get()
+                ->map(fn (ProdutoVariacao $variacao) => [
+                    'id' => $variacao->id,
+                    'nome' => $variacao->tamanho,
+                    'estoque' => (int) $variacao->estoque,
+                    'preco' => null,
+                ])
+                ->all(),
+            imagens: ProdutoImagem::where('produto_id', $model->id)
+                ->orderBy('ordem')
+                ->get()
+                ->map(fn (ProdutoImagem $imagem) => [
+                    'id' => $imagem->id,
+                    'url' => $imagem->url,
+                ])
+                ->all()
         );
     }
 }

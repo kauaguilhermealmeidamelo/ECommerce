@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domain\Produtos\UseCases;
+namespace App\Domain\Produto\UseCases;
 
-use App\Domain\Produtos\Entities\Produto;
-use App\Domain\Produtos\Repositories\ProdutoRepositoryInterface;
-use App\Domain\Produtos\ValueObjects\Preco;
-use App\Domain\Produtos\ValueObjects\Sku;
+use App\Domain\Produto\Entities\Produto;
+use App\Domain\Produto\Repositories\ProdutoRepositoryInterface;
+use App\Domain\Produto\ValueObjects\Preco;
+use App\Domain\Produto\ValueObjects\Sku;
 use InvalidArgumentException;
 
 class CriarProdutoUseCase

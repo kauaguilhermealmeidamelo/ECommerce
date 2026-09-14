@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,16 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => \App\Infrastructure\Http\Middleware\AdminApenas::class,
-            'manutencao' => \App\Infrastructure\Http\Middleware\ModoManutencao::class,
         ]);
-
-        $middleware->redirectGuestsTo(fn () => null);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+        // Força respostas JSON para qualquer rota /api/* sem redirecionar
+        $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
             if ($request->is('api/*')) {
-                return response()->json(['message' => 'Não autenticado.'], 401);
+                return true;
             }
+            return $request->expectsJson();
         });
-    })
-    ->create();
+    })->create();

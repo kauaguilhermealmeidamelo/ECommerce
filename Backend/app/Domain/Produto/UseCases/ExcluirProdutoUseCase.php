@@ -4,14 +4,14 @@ namespace App\Domain\Produto\UseCases;
 
 use App\Domain\Produto\Repositories\ProdutoRepositoryInterface;
 
-class ListarProdutosAtivosUseCase
+class ExcluirProdutoUseCase
 {
     public function __construct(
         private ProdutoRepositoryInterface $produtoRepository
     ) {}
 
-    public function executar(?int $categoriaId = null): array
+    public function executar(int $id): void
     {
-        return $this->produtoRepository->listarTodos($categoriaId);
+        $this->produtoRepository->deletar($id);
     }
 }

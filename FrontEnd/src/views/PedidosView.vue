@@ -8,7 +8,7 @@
       <div class="pagina__acoes">
         <button v-if="aba === 'todos'" class="btn btn--secundario" :class="{ 'btn--ativo': filtroAtivo }"
           @click="abrirFiltro">
-          🔍 Filtros <span v-if="filtroAtivo" style="color: var(--blue-600)">●</span>
+          <v-icon icon="mdi-filter-variant" size="small" /> Filtros <span v-if="filtroAtivo" style="color: var(--blue-600)"><v-icon icon="mdi-circle" size="x-small" /></span>
         </button>
       </div>
     </div>
@@ -52,7 +52,7 @@
                 <td>
                   <StatusPedidoBadge :status="pedido.status" />
                 </td>
-                <td><button class="btn btn--fantasma" @click="verDetalhe(pedido)">👁️</button></td>
+                <td><button class="btn btn--fantasma" @click="verDetalhe(pedido)" aria-label="Ver pedido"><v-icon icon="mdi-eye-outline" size="small" /></button></td>
               </tr>
             </tbody>
           </table>
@@ -101,7 +101,7 @@
             <span><strong>CEP {{ pedido.destinatario.cep }}</strong></span>
           </div>
           <div class="envio-card__acoes">
-            <button class="btn btn--secundario" @click="copiarEndereco(pedido)">📋 Copiar endereço</button>
+            <button class="btn btn--secundario" @click="copiarEndereco(pedido)"><v-icon icon="mdi-content-copy" size="small" /> Copiar endereço</button>
           </div>
           <details class="envio-card__form" v-if="formEnvio[pedido.id]">
             <summary>Marcar como enviado</summary>
@@ -122,7 +122,7 @@
     <Modal :aberto="filtroModalAberto" titulo="Filtrar Pedidos" @fechar="filtroModalAberto = false">
       <div class="filtro-campo">
         <label>Buscar</label>
-        <div class="busca"><span>🔍</span><input v-model="filtroPendente.busca" placeholder="Número do pedido..." />
+        <div class="busca"><v-icon icon="mdi-magnify" size="small" /><input v-model="filtroPendente.busca" placeholder="Número do pedido..." />
         </div>
       </div>
       <div class="filtro-campo">

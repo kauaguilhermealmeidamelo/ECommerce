@@ -9,6 +9,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import './style.css'
+import '@mdi/font/css/materialdesignicons.css'
 
 // 1. Importações do Vuetify
 import 'vuetify/styles'

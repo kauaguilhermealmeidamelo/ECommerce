@@ -15,7 +15,7 @@
   </li>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import api from '@/services/api'
 
 const props = defineProps({

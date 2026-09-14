@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\Produtos\UseCases;
+namespace App\Domain\Produto\UseCases;
 
-use App\Domain\Produtos\Repositories\ProdutoRepositoryInterface;
+use App\Domain\Produto\Repositories\ProdutoRepositoryInterface;
 use InvalidArgumentException;
 use RuntimeException;
 

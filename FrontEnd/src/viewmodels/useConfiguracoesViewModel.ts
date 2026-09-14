@@ -55,6 +55,16 @@ export function useConfiguracoesViewModel() {
     uf: '',
   })
   const salvandoLoja = ref(false)
+  const logoSelecionado = ref<File | null>(null)
+  const bannerSelecionado = ref<File | null>(null)
+
+  function selecionarLogo(evento: Event) {
+    logoSelecionado.value = (evento.target as HTMLInputElement).files?.[0] ?? null
+  }
+
+  function selecionarBanner(evento: Event) {
+    bannerSelecionado.value = (evento.target as HTMLInputElement).files?.[0] ?? null
+  }
 
   async function carregarLoja() {
     try {
@@ -68,7 +78,16 @@ export function useConfiguracoesViewModel() {
   async function salvarLoja() {
     salvandoLoja.value = true
     try {
-      await api.put('/admin/loja', loja.value)
+      const dados = new FormData()
+      Object.entries(loja.value).forEach(([campo, valor]) => {
+        if (valor !== null && valor !== undefined) dados.append(campo, String(valor))
+      })
+      if (logoSelecionado.value) dados.append('logo', logoSelecionado.value)
+      if (bannerSelecionado.value) dados.append('banner', bannerSelecionado.value)
+      await api.post('/admin/loja', dados)
+      logoSelecionado.value = null
+      bannerSelecionado.value = null
+      await carregarLoja()
       avisar('Dados da loja salvos.')
     } catch {
       avisar('Não foi possível salvar os dados da loja.', 'error')
@@ -241,6 +260,8 @@ export function useConfiguracoesViewModel() {
     seguranca,
     salvandoSeguranca,
     salvarLoja,
+    selecionarLogo,
+    selecionarBanner,
     salvarConfigLoja,
     copiarUrlWebhook,
     salvarPagamento,

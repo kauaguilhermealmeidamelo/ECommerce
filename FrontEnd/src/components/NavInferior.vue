@@ -2,7 +2,7 @@
   <nav class="navbar navbar--mobile">
     <router-link v-for="item in itens" :key="item.rota" :to="{ name: item.rota }" class="navbar__item"
       :class="{ 'navbar__item--ativo': rotaAtiva === item.rota }">
-      <span class="navbar__icone">{{ item.icone }}</span>
+      <v-icon class="navbar__icone" :icon="item.icone" size="small" />
       <span class="navbar__label">{{ item.label }}</span>
       <span v-if="item.contador" class="navbar__contador">{{ item.contador }}</span>
     </router-link>

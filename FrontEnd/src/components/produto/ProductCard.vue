@@ -1,6 +1,9 @@
 <template>
   <article class="produto-card">
-    <img :src="produto.imagem_url" :alt="produto.nome" class="produto-card__imagem" />
+    <img v-if="imagemPrincipal" :src="imagemPrincipal" :alt="produto.nome" class="produto-card__imagem" />
+    <div v-else class="produto-card__imagem produto-card__imagem--vazia" aria-hidden="true">
+      <v-icon icon="mdi-image-outline" size="32" />
+    </div>
     <div class="produto-card__corpo">
       <h3 class="produto-card__nome">{{ produto.nome }}</h3>
       <span class="produto-card__categoria">{{ produto.categoria?.nome }}</span>
@@ -13,18 +16,21 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface Produto {
   id: number | string
   nome: string
   preco: number
   imagem_url?: string
+  imagens?: Array<{ url?: string }>
   categoria?: {
     nome: string
   }
   [key: string]: any
 }
 
-defineProps < {
+const props = defineProps < {
   produto: Produto
 } > ()
 
@@ -34,6 +40,8 @@ defineEmits < {
 
 const formatarMoeda = (v: number): string =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
+
+const imagemPrincipal = computed(() => props.produto.imagens?.[0]?.url || props.produto.imagem_url || '')
 </script>
 
 <style scoped>
@@ -51,6 +59,13 @@ const formatarMoeda = (v: number): string =>
   width: 100%;
   aspect-ratio: 3/4;
   object-fit: cover;
+}
+
+.produto-card__imagem--vazia {
+  display: grid;
+  place-items: center;
+  background: #f4f1eb;
+  color: var(--cor-texto-suave);
 }
 
 .produto-card__corpo {

@@ -20,7 +20,7 @@ class CarrinhoController extends Controller
             $request->user()?->id
         );
 
-        return response()->json(['data' => $carrinho->load('itens.produto', 'itens.variacao')]);
+        return response()->json(['data' => $carrinho->load('itens.produto.imagens', 'itens.variacao')]);
     }
 
     public function adicionarItem(Request $request): JsonResponse
@@ -38,7 +38,7 @@ class CarrinhoController extends Controller
 
         $this->carrinhoService->adicionarItem($carrinho, $dados['produto_id'], $dados['quantidade'], $dados['tamanho'] ?? null);
 
-        return response()->json(['data' => $carrinho->fresh('itens.produto', 'itens.variacao')]);
+        return response()->json(['data' => $carrinho->fresh('itens.produto.imagens', 'itens.variacao')]);
     }
 
     /**
@@ -61,7 +61,7 @@ class CarrinhoController extends Controller
         $itemCarrinho = $carrinho->itens()->findOrFail($item);
         $itemCarrinho->update(['quantidade' => $dados['quantidade']]);
 
-        return response()->json(['data' => $carrinho->fresh('itens.produto', 'itens.variacao')]);
+        return response()->json(['data' => $carrinho->fresh('itens.produto.imagens', 'itens.variacao')]);
     }
 
     /**

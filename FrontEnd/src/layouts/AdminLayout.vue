@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import TopHeader from '@/components/layout/TopHeader.vue'
@@ -35,10 +35,9 @@ const itensNav = computed(() => [
   { rota: 'configuracoes', label: 'Config.', icone: 'mdi-cog' },
 ])
 
-const titulosPorRota = {
+const titulosPorRota: Record<string, { titulo: string; subtitulo: string }> = {
   dashboard: { titulo: 'Dashboard', subtitulo: novaDataFormatada() },
   produtos: { titulo: 'Produtos', subtitulo: 'Gerencie seu catálogo' },
-  'produto-novo': { titulo: 'Produtos', subtitulo: 'Novo produto' },
   'produto-editar': { titulo: 'Produtos', subtitulo: 'Editar produto' },
   categorias: { titulo: 'Categorias', subtitulo: 'Organize seu catálogo' },
   pedidos: { titulo: 'Pedidos', subtitulo: 'Acompanhe suas vendas' },
@@ -50,20 +49,31 @@ function novaDataFormatada() {
   return new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
 }
 
-const tituloPagina = computed(() => titulosPorRota[route.name] ?? { titulo: '', subtitulo: '' })
+const tituloPagina = computed(() => titulosPorRota[String(route.name)] ?? { titulo: '', subtitulo: '' })
 
 // Notificações reais e simples: pedidos aguardando envio + avisos de
 // estoque baixo. Sem infraestrutura de notificação dedicada no backend
 // ainda — isso é só um resumo operacional montado a partir de endpoints
 // que já existem.
-const notificacoes = ref([])
+interface Notificacao {
+  texto: string
+  tempo: string
+  cor: string
+}
+
+interface EnvioPendente {
+  id: number | string
+  criado_em: string
+}
+
+const notificacoes = ref<Notificacao[]>([])
 
 async function carregarResumoOperacional() {
   try {
     const { data } = await api.get('/admin/envios/pendentes')
     pedidosPendentesEnvio.value = data.data.length
 
-    notificacoes.value = data.data.slice(0, 3).map((pedido) => ({
+    notificacoes.value = (data.data as EnvioPendente[]).slice(0, 3).map((pedido) => ({
       texto: `Pedido #${pedido.id} aguardando envio`,
       tempo: new Date(pedido.criado_em).toLocaleDateString('pt-BR'),
       cor: 'azul',

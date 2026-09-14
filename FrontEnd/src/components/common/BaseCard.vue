@@ -5,7 +5,7 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Componente base reutilizável para containers do painel
 </script>
 

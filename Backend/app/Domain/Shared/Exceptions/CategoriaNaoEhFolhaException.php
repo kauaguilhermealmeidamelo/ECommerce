@@ -1,5 +1,5 @@
 <?php
-namespace App\Domain\Produto\Exceptions;
+namespace App\Domain\Shared\Exceptions;
 
 use DomainException;
 

@@ -228,7 +228,7 @@
   </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import StatCard from '@/components/dashboard/StatCard.vue'
 
@@ -262,7 +262,7 @@ const categoriasMock = ref([
   { nome: 'Moletons', pedidos: 12, faturamento: 2770.00, porcentagem: 18.7 }
 ])
 
-const formatarMoeda = (valor) => {
+const formatarMoeda = (valor: number | string | null | undefined) => {
   return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 </script>

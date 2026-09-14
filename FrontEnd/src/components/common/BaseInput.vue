@@ -13,7 +13,7 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 defineProps({
   modelValue: { type: [String, Number], default: '' },
   label: { type: String, default: '' },

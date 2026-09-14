@@ -30,11 +30,11 @@
         <div class="rodape__coluna">
           <h4>Contato</h4>
           <ul>
-            <li v-if="loja?.telefone">📞 {{ loja.telefone }}</li>
-            <li v-if="loja?.email_contato">✉️ {{ loja.email_contato }}</li>
-            <li v-if="loja?.whatsapp"><a :href="linkWhatsapp" target="_blank" rel="noopener">💬 Fale no WhatsApp</a>
+            <li v-if="loja?.telefone"><v-icon icon="mdi-phone-outline" size="small" /> {{ loja.telefone }}</li>
+            <li v-if="loja?.email_contato"><v-icon icon="mdi-email-outline" size="small" /> {{ loja.email_contato }}</li>
+            <li v-if="loja?.whatsapp"><a :href="linkWhatsapp" target="_blank" rel="noopener"><v-icon icon="mdi-whatsapp" size="small" /> Fale no WhatsApp</a>
             </li>
-            <li v-if="enderecoCompleto">📍 {{ enderecoCompleto }}</li>
+            <li v-if="enderecoCompleto"><v-icon icon="mdi-map-marker-outline" size="small" /> {{ enderecoCompleto }}</li>
           </ul>
         </div>
       </div>

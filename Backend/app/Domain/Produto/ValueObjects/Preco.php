@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Produtos\ValueObjects;
+namespace App\Domain\Produto\ValueObjects;
 
 use InvalidArgumentException;
 

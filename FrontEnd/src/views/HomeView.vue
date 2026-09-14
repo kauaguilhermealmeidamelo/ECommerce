@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <section class="hero">
+    <section class="hero" :style="tema.banner ? { backgroundImage: `url(${tema.banner})` } : undefined">
       <div class="hero__conteudo">
         <span class="hero__selo">Novidades toda semana</span>
         <h1 class="font-display hero__titulo">{{ tema.nome }}</h1>
@@ -24,14 +24,14 @@
 
     <section class="secao secao--achadinhos">
       <div class="secao__cabecalho">
-        <h2 class="secao__titulo">Achadinhos recentes</h2>
-        <router-link :to="{ name: 'catalogo' }" class="secao__ver-tudo">Ver tudo →</router-link>
+        <h2 class="secao__titulo">Mais comprados</h2>
+        <router-link :to="{ name: 'catalogo' }" class="secao__ver-tudo">Ver tudo <v-icon icon="mdi-arrow-right" size="small" /></router-link>
       </div>
 
-      <div v-if="carregandoAchadinhos" class="estado">Carregando...</div>
-      <div v-else-if="achadinhos.length === 0" class="estado">Nenhum produto novo por aqui ainda.</div>
+      <div v-if="carregandoMaisVendidos" class="estado">Carregando...</div>
+      <div v-else-if="maisVendidos.length === 0" class="estado">Ainda não há vendas suficientes para montar o ranking.</div>
       <div v-else class="grade-produtos">
-        <ProductCard v-for="produto in achadinhos" :key="produto.id" :produto="produto"
+        <ProductCard v-for="produto in maisVendidos" :key="produto.id" :produto="produto"
           @adicionar="adicionarAoCarrinho" />
       </div>
     </section>
@@ -46,8 +46,8 @@ const {
   tema,
   categorias,
   carregando,
-  achadinhos,
-  carregandoAchadinhos,
+  maisVendidos,
+  carregandoMaisVendidos,
   adicionarAoCarrinho,
 } = useHomeViewModel()
 </script>

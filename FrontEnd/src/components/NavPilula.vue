@@ -2,7 +2,7 @@
   <nav class="pilula">
     <router-link v-for="item in itens" :key="item.rota" :to="{ name: item.rota }" class="pilula__item"
       :class="{ 'pilula__item--ativo': rotaAtiva === item.rota }">
-      <span class="pilula__icone">{{ item.icone }}</span>
+      <v-icon class="pilula__icone" :icon="item.icone" size="small" />
       <span class="pilula__label">{{ item.label }}</span>
       <span v-if="item.contador" class="pilula__contador">{{ item.contador }}</span>
     </router-link>

@@ -2,7 +2,10 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
 
-export function useProdutoFormViewModel(id?: string | number | null | any) {
+export function useProdutoFormViewModel(
+    id?: string | number | null | any,
+    callbacks?: { salvo?: () => void; cancelado?: () => void },
+) {
     const router = useRouter()
     const modoEdicao = computed(() => !!id)
 
@@ -11,6 +14,10 @@ export function useProdutoFormViewModel(id?: string | number | null | any) {
         categoria_id: '',
         preco: null as number | null,
         estoque: 0,
+        peso: null as number | null,
+        altura: null as number | null,
+        largura: null as number | null,
+        comprimento: null as number | null,
         descricao: '',
     })
 
@@ -93,9 +100,13 @@ export function useProdutoFormViewModel(id?: string | number | null | any) {
             const { data } = await api.get(`/admin/produtos/${id}`)
             produto.value = {
                 nome: data.data.nome,
-                categoria_id: data.data.categoria_id,
+                categoria_id: data.data.categoria_id ?? data.data.categoriaId ?? '',
                 preco: data.data.preco,
                 estoque: data.data.estoque,
+                peso: data.data.peso ?? null,
+                altura: data.data.altura ?? null,
+                largura: data.data.largura ?? null,
+                comprimento: data.data.comprimento ?? null,
                 descricao: data.data.descricao ?? '',
             }
             imagensExistentes.value = data.data.imagens ?? []
@@ -121,6 +132,10 @@ export function useProdutoFormViewModel(id?: string | number | null | any) {
         formData.append('preco', String(produto.value.preco))
         formData.append('descricao', produto.value.descricao || '')
         formData.append('estoque', String(produto.value.estoque ?? 0))
+        if (produto.value.peso !== null) formData.append('peso', String(produto.value.peso))
+        if (produto.value.altura !== null) formData.append('altura', String(produto.value.altura))
+        if (produto.value.largura !== null) formData.append('largura', String(produto.value.largura))
+        if (produto.value.comprimento !== null) formData.append('comprimento', String(produto.value.comprimento))
 
         variacoes.value.forEach((v, i) => {
             formData.append(`variacoes[${i}][nome]`, v.nome)
@@ -139,7 +154,8 @@ export function useProdutoFormViewModel(id?: string | number | null | any) {
         try {
             await api.post(url, formData)
             limparPreviews()
-            router.push({ name: 'produtos' })
+            if (callbacks?.salvo) callbacks.salvo()
+            else router.push({ name: 'produtos' })
         } catch (e: unknown) {
             const err = e as any
             const erros = err.response?.data?.errors
@@ -152,7 +168,8 @@ export function useProdutoFormViewModel(id?: string | number | null | any) {
 
     function cancelar() {
         limparPreviews()
-        router.push({ name: 'produtos' })
+        if (callbacks?.cancelado) callbacks.cancelado()
+        else router.push({ name: 'produtos' })
     }
 
     return {

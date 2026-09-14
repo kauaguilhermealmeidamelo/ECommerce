@@ -2,14 +2,12 @@
   <span class="badge badge--dot" :class="classeBadge">{{ rotulo }}</span>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps({
-  status: { type: String, required: true },
-})
+const props = defineProps<{ status: string }>()
 
-const mapa = {
+const mapa: Record<string, { rotulo: string; classe: string }> = {
   pendente: { rotulo: 'Pendente', classe: 'badge--warning' },
   em_analise: { rotulo: 'Em Análise', classe: 'badge--warning' },
   pago: { rotulo: 'Pago', classe: 'badge--success' },

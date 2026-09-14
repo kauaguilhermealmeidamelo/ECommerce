@@ -22,6 +22,10 @@
       <h3 class="secao__titulo">Informações da Loja</h3>
       <div class="campos">
         <label>Nome da loja<input v-model="loja.nome" /></label>
+        <label>Logo da loja<input type="file" accept="image/*" @change="selecionarLogo" /></label>
+        <img v-if="loja.logo_url" :src="loja.logo_url" alt="Logo atual" class="midia-preview midia-preview--logo" />
+        <label>Foto do banner<input type="file" accept="image/*" @change="selecionarBanner" /></label>
+        <img v-if="loja.banner_url" :src="loja.banner_url" alt="Banner atual" class="midia-preview" />
         <label>E-mail de contato<input v-model="loja.email_contato" type="email" /></label>
         <label>Telefone<input v-model="loja.telefone" /></label>
         <div class="campos__linha">
@@ -94,7 +98,7 @@
           </ol>
 
           <p class="tutorial__nota">
-            ⚠️ Credenciais de teste e de produção têm cada uma sua própria Chave secreta de webhook. Use a de teste
+            <v-icon icon="mdi-alert-outline" size="small" /> Credenciais de teste e de produção têm cada uma sua própria Chave secreta de webhook. Use a de teste
             enquanto desenvolve, e troque pra de produção só quando for para o ar de verdade.
           </p>
         </details>
@@ -113,7 +117,7 @@
           <label>
             <span class="campos__label">
               Access Token
-              <span v-if="pagamento.access_token_configurado" class="selo-conectado">✓ Configurado</span>
+              <span v-if="pagamento.access_token_configurado" class="selo-conectado"><v-icon icon="mdi-check" size="x-small" /> Configurado</span>
             </span>
             <input v-model="pagamento.access_token" type="password"
               :placeholder="pagamento.access_token_configurado ? '•••••••••••••••• (cole um novo pra trocar)' : 'APP_USR-...'" />
@@ -122,7 +126,7 @@
           <label>
             <span class="campos__label">
               Chave secreta do Webhook
-              <span v-if="pagamento.webhook_secret_configurado" class="selo-conectado">✓ Configurado</span>
+              <span v-if="pagamento.webhook_secret_configurado" class="selo-conectado"><v-icon icon="mdi-check" size="x-small" /> Configurado</span>
             </span>
             <input v-model="pagamento.webhook_secret" type="password"
               :placeholder="pagamento.webhook_secret_configurado ? '•••••••••••••••• (cole uma nova pra trocar)' : 'Cole aqui a chave secreta'" />
@@ -131,7 +135,7 @@
 
         <p v-if="!pagamento.access_token_configurado" class="aviso-cadastro aviso-cadastro--alerta"
           style="margin-top:.9rem">
-          ⚠️ Sem o Access Token configurado, o checkout da loja fica indisponível — os clientes não conseguem finalizar
+          <v-icon icon="mdi-alert-outline" size="small" /> Sem o Access Token configurado, o checkout da loja fica indisponível — os clientes não conseguem finalizar
           compras.
         </p>
       </div>
@@ -207,7 +211,7 @@
     <!-- Segurança e Notificações -->
     <section v-if="aba === 'seguranca'" style="display:flex; flex-direction:column; gap:1rem">
       <div class="card secao">
-        <h3 class="secao__titulo">🔒 Segurança e Notificações</h3>
+        <h3 class="secao__titulo"><v-icon icon="mdi-shield-lock-outline" size="small" /> Segurança e Notificações</h3>
 
         <div class="opcao-toggle">
           <div>
@@ -238,7 +242,7 @@
         </div>
 
         <p v-if="seguranca.modo_manutencao" class="aviso-cadastro aviso-cadastro--alerta">
-          ⚠️ Com o modo manutenção ativo, a loja pública (storefront) para de responder pedidos e visitas até você
+          <v-icon icon="mdi-alert-outline" size="small" /> Com o modo manutenção ativo, a loja pública (storefront) para de responder pedidos e visitas até você
           desligar aqui.
         </p>
       </div>
@@ -274,6 +278,8 @@ const {
   seguranca,
   salvandoSeguranca,
   salvarLoja,
+  selecionarLogo,
+  selecionarBanner,
   salvarConfigLoja,
   copiarUrlWebhook,
   salvarPagamento,
@@ -352,6 +358,22 @@ const {
   font-size: .78rem;
   color: var(--ink-soft);
   font-weight: 600;
+}
+
+.midia-preview {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.midia-preview--logo {
+  width: auto;
+  max-width: 220px;
+  height: 70px;
+  object-fit: contain;
 }
 
 .campos__label {
