@@ -6,7 +6,8 @@
       <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center gap-4">
         <div>
           <h1 class="text-h4 font-weight-bold text-grey-darken-4 tracking-tight">Dashboard</h1>
-          <p class="text-body-2 text-grey-darken-1 mt-1">Visão geral e desempenho consolidado das operações da sua loja</p>
+          <p class="text-body-2 text-grey-darken-1 mt-1">Visão geral e desempenho consolidado das operações da sua loja
+          </p>
         </div>
         <div class="d-flex align-center gap-3">
           <v-chip variant="outlined" color="grey-darken-2" size="small" prepend-icon="mdi-calendar-range">
@@ -19,44 +20,34 @@
     <!-- Cards de Estatísticas (KPIs) -->
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <StatCard 
-          title="Faturamento (mês)" 
-          :value="formatarMoeda(dados.faturamentoAtual)" 
-          :comparison="`vs. mês anterior ${formatarMoeda(dados.faturamentoAnterior)}`"
-          variant="indigo"
-        >
+        <StatCard title="Faturamento (mês)" :value="formatarMoeda(dados.faturamentoAtual)"
+          :comparison="`vs. mês anterior ${formatarMoeda(dados.faturamentoAnterior)}`" variant="indigo">
           <template #icon>
             <v-icon icon="mdi-currency-usd" size="24" />
           </template>
           <template #badge>
-            <v-chip color="success" size="x-small" class="font-weight-bold px-2" prepend-icon="mdi-menu-up">18.2%</v-chip>
+            <v-chip color="success" size="x-small" class="font-weight-bold px-2"
+              prepend-icon="mdi-menu-up">18.2%</v-chip>
           </template>
         </StatCard>
       </v-col>
 
       <v-col cols="12" sm="6" lg="3">
-        <StatCard 
-          title="Pedidos (mês)" 
-          :value="dados.pedidosAtual" 
-          :comparison="`vs. mês anterior ${dados.pedidosAnterior}`"
-          variant="purple"
-        >
+        <StatCard title="Pedidos (mês)" :value="dados.pedidosAtual"
+          :comparison="`vs. mês anterior ${dados.pedidosAnterior}`" variant="purple">
           <template #icon>
             <v-icon icon="mdi-shopping-outline" size="24" />
           </template>
           <template #badge>
-            <v-chip color="success" size="x-small" class="font-weight-bold px-2" prepend-icon="mdi-menu-up">12.5%</v-chip>
+            <v-chip color="success" size="x-small" class="font-weight-bold px-2"
+              prepend-icon="mdi-menu-up">12.5%</v-chip>
           </template>
         </StatCard>
       </v-col>
 
       <v-col cols="12" sm="6" lg="3">
-        <StatCard 
-          title="Ticket Médio" 
-          :value="formatarMoeda(dados.ticketMedioAtual)" 
-          :comparison="`vs. mês anterior ${formatarMoeda(dados.ticketMedioAnterior)}`"
-          variant="amber"
-        >
+        <StatCard title="Ticket Médio" :value="formatarMoeda(dados.ticketMedioAtual)"
+          :comparison="`vs. mês anterior ${formatarMoeda(dados.ticketMedioAnterior)}`" variant="amber">
           <template #icon>
             <v-icon icon="mdi-chart-line" size="24" />
           </template>
@@ -64,17 +55,14 @@
       </v-col>
 
       <v-col cols="12" sm="6" lg="3">
-        <StatCard 
-          title="Novos Clientes" 
-          :value="dados.novosClientesAtual" 
-          :comparison="`vs. mês anterior ${dados.novosClientesAnterior}`"
-          variant="emerald"
-        >
+        <StatCard title="Novos Clientes" :value="dados.novosClientesAtual"
+          :comparison="`vs. mês anterior ${dados.novosClientesAnterior}`" variant="emerald">
           <template #icon>
             <v-icon icon="mdi-account-group-outline" size="24" />
           </template>
           <template #badge>
-            <v-chip color="success" size="x-small" class="font-weight-bold px-2" prepend-icon="mdi-menu-up">5.2%</v-chip>
+            <v-chip color="success" size="x-small" class="font-weight-bold px-2"
+              prepend-icon="mdi-menu-up">5.2%</v-chip>
           </template>
         </StatCard>
       </v-col>
@@ -94,9 +82,11 @@
                 <span class="legend-item"><span class="dot lucro"></span> Lucro (Profit)</span>
               </div>
             </div>
-            <p class="text-caption text-grey-darken-1 mb-4">Análise comparativa de desempenho financeiro dos últimos 6 meses</p>
+            <p class="text-caption text-grey-darken-1 mb-4">Análise comparativa de desempenho financeiro dos últimos 6
+              meses
+            </p>
           </div>
-          
+
           <!-- Tooltip Informativo do Mês Selecionado -->
           <div class="chart-tooltip-box mb-4 px-4 py-3">
             <div class="d-flex justify-space-between align-center flex-wrap gap-2">
@@ -105,7 +95,8 @@
                 <strong class="text-primary ml-1 font-weight-bold">{{ mesSelecionado.mes }}</strong>
               </div>
               <div class="d-flex align-center tooltip-values gap-4">
-                <span>Vendas: <strong class="text-blue-darken-2">{{ formatarMoeda(mesSelecionado.receita) }}</strong></span>
+                <span>Vendas: <strong class="text-blue-darken-2">{{ formatarMoeda(mesSelecionado.receita)
+                    }}</strong></span>
                 <span>Custo: <strong class="text-error">{{ formatarMoeda(mesSelecionado.gasto) }}</strong></span>
                 <span>Lucro: <strong class="text-success">{{ formatarMoeda(mesSelecionado.lucro) }}</strong></span>
               </div>
@@ -114,16 +105,12 @@
 
           <!-- Gráfico de Colunas Agrupadas com Proporção Adequada -->
           <div class="bar-chart-container my-3">
-            <div 
-              v-for="(item, index) in historicoMensal" 
-              :key="index"
-              class="bar-group"
-              @mouseenter="mesSelecionado = item"
-              @click="mesSelecionado = item"
-            >
+            <div v-for="(item, index) in historicoMensal" :key="index" class="bar-group"
+              @mouseenter="mesSelecionado = item" @click="mesSelecionado = item">
               <div class="bars-wrapper">
                 <!-- Coluna Vendas proporcional (Escala baseada em max 18.000) -->
-                <div class="bar bar-receita" :style="{ height: `${(item.receita / 18000) * 100}%` }" title="Vendas"></div>
+                <div class="bar bar-receita" :style="{ height: `${(item.receita / 18000) * 100}%` }" title="Vendas">
+                </div>
                 <!-- Coluna Custos proporcional -->
                 <div class="bar bar-gasto" :style="{ height: `${(item.gasto / 18000) * 100}%` }" title="Custos"></div>
                 <!-- Coluna Lucro proporcional -->
@@ -145,7 +132,7 @@
               <h2 class="text-h6 font-weight-bold text-grey-darken-4">Resumo do Mês</h2>
             </div>
             <p class="text-caption text-uppercase text-grey font-weight-medium mb-4">setembro de 2026</p>
-            
+
             <div class="summary-list">
               <div class="summary-item">
                 <span class="summary-label">Vendas (Sales)</span>
@@ -157,7 +144,8 @@
               </div>
               <div class="summary-item">
                 <span class="summary-label">Lucro (Profit)</span>
-                <span class="summary-value text-success font-weight-bold">{{ formatarMoeda(dados.lucroEstimado) }}</span>
+                <span class="summary-value text-success font-weight-bold">{{ formatarMoeda(dados.lucroEstimado)
+                  }}</span>
               </div>
               <div class="summary-item">
                 <span class="summary-label">Pedidos</span>
@@ -188,7 +176,7 @@
             <span class="text-caption text-grey">Últimos 90 dias</span>
           </div>
           <p class="text-caption text-grey-darken-1 mb-4">Faturamento segmentado por categoria cadastrada</p>
-          
+
           <v-table class="categorias-table hover-table" theme="light">
             <thead>
               <tr>
@@ -211,13 +199,8 @@
                 <td class="text-right text-grey-darken-2">{{ cat.pedidos }}</td>
                 <td class="text-right font-weight-bold text-grey-darken-4">{{ formatarMoeda(cat.faturamento) }}</td>
                 <td class="text-center">
-                  <v-progress-linear 
-                    :model-value="cat.porcentagem" 
-                    color="indigo" 
-                    height="6" 
-                    rounded
-                    class="bg-grey-lighten-3"
-                  ></v-progress-linear>
+                  <v-progress-linear :model-value="cat.porcentagem" color="indigo" height="6" rounded
+                    class="bg-grey-lighten-3"></v-progress-linear>
                 </td>
               </tr>
             </tbody>
@@ -299,9 +282,18 @@ const formatarMoeda = (valor: number | string | null | undefined) => {
   border-radius: 50%;
   display: inline-block;
 }
-.dot.receita { background-color: #2563eb; }
-.dot.gasto { background-color: #dc2626; }
-.dot.lucro { background-color: #059669; }
+
+.dot.receita {
+  background-color: #2563eb;
+}
+
+.dot.gasto {
+  background-color: #dc2626;
+}
+
+.dot.lucro {
+  background-color: #059669;
+}
 
 .chart-tooltip-box {
   background-color: #f8fafc;
@@ -354,9 +346,17 @@ const formatarMoeda = (valor: number | string | null | undefined) => {
   transform: scaleY(1.02);
 }
 
-.bar-receita { background-color: #2563eb; }
-.bar-gasto { background-color: #dc2626; }
-.bar-lucro { background-color: #059669; }
+.bar-receita {
+  background-color: #2563eb;
+}
+
+.bar-gasto {
+  background-color: #dc2626;
+}
+
+.bar-lucro {
+  background-color: #059669;
+}
 
 .bar-label {
   font-size: 0.8rem;
