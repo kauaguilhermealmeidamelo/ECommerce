@@ -70,6 +70,7 @@ function buscar() {
 
 function sair() {
   auth.logout()
+  carrinho.quantidadeItens = 0
   router.push({ name: 'home' })
 }
 

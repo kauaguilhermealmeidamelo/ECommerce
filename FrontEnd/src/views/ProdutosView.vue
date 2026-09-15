@@ -2,7 +2,7 @@
 <template>
   <v-container class="dashboard-container py-8 px-6" fluid>
     <!-- Cabeçalho da Página -->
-    <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center gap-4 mb-8">
+    <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center ga-4 mb-8">
       <div>
         <h1 class="text-h4 font-weight-bold text-grey-darken-4 tracking-tight">Produtos</h1>
         <p class="text-body-2 text-grey-darken-1 mt-1">Gerencie seu catálogo de produtos, preços e estoque</p>
@@ -23,7 +23,7 @@
             prepend-inner-icon="mdi-magnify" variant="solo" flat density="comfortable" hide-details class="saas-input"
             autocomplete="off" />
         </v-col>
-        <v-col cols="12" md="4" class="d-flex justify-md-end align-center mt-3 mt-md-0 gap-3">
+        <v-col cols="12" md="4" class="d-flex justify-md-end align-center mt-3 mt-md-0 ga-3">
           <v-btn variant="outlined" color="grey-darken-2" prepend-icon="mdi-filter-variant"
             rounded="lg" class="filtro-btn text-none font-weight-medium px-5">
             Filtrar
@@ -68,7 +68,7 @@
         <tbody>
           <tr v-for="produto in produtosFiltrados" :key="produto.id">
             <td class="py-3">
-              <div class="d-flex align-center gap-3">
+              <div class="d-flex align-center ga-3">
                 <v-avatar color="indigo-lighten-5" size="36" rounded="lg">
                   <v-icon icon="mdi-tag-outline" size="small" color="indigo-darken-2"></v-icon>
                 </v-avatar>

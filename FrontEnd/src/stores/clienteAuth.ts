@@ -67,6 +67,7 @@ export const useClienteAuthStore = defineStore('clienteAuth', {
       this.usuario = null
       localStorage.removeItem('cliente_token')
       localStorage.removeItem('cliente_usuario')
+      localStorage.removeItem('loja_sessao_id') // força uma sessão/carrinho novo de visitante
     },
   },
 })

@@ -42,13 +42,27 @@ Route::get('/produtos/{produto}', [ProdutoController::class, 'show']);
 
 Route::get('/categorias/arvore', [CategoriaController::class, 'arvore']);
 
-Route::get('/carrinho', [CarrinhoController::class, 'mostrar']);
-Route::post('/carrinho/itens', [CarrinhoController::class, 'adicionarItem']);
-Route::patch('/carrinho/itens/{item}', [CarrinhoController::class, 'atualizarItem']);
-Route::delete('/carrinho/itens/{item}', [CarrinhoController::class, 'removerItem']);
+/*
+|--------------------------------------------------------------------------
+| Carrinho e checkout — públicas, mas com autenticação OPCIONAL.
+|--------------------------------------------------------------------------
+| O middleware 'cliente.opcional' resolve $request->user() quando um Bearer
+| token é enviado (cliente logado), sem bloquear a rota quando não há token
+| (visitante). Isso é essencial pro GerenciarCarrinhoUseCase decidir entre
+| carrinho por usuario_id (logado) ou por sessao_id/X-Session-Id (visitante).
+| Sem isso, $request->user() nunca resolve aqui (guard padrão é 'web', que
+| ignora o header Authorization) e o carrinho SEMPRE cai no sessao_id —
+| inclusive após login/logout/troca de conta.
+*/
+Route::middleware('cliente.opcional')->group(function () {
+    Route::get('/carrinho', [CarrinhoController::class, 'mostrar']);
+    Route::post('/carrinho/itens', [CarrinhoController::class, 'adicionarItem']);
+    Route::patch('/carrinho/itens/{item}', [CarrinhoController::class, 'atualizarItem']);
+    Route::delete('/carrinho/itens/{item}', [CarrinhoController::class, 'removerItem']);
 
-Route::post('/checkout/frete', [CheckoutController::class, 'calcularFreteEndpoint']);
-Route::post('/checkout/finalizar', [CheckoutController::class, 'finalizar']);
+    Route::post('/checkout/frete', [CheckoutController::class, 'calcularFreteEndpoint']);
+    Route::post('/checkout/finalizar', [CheckoutController::class, 'finalizar']);
+});
 
 Route::post('/visitas', [VisitaController::class, 'registrar']);
 Route::get('/frete/opcoes', [EntregaController::class, 'opcoes']);
