@@ -15,6 +15,12 @@ class GerenciarCarrinhoUseCase
             return Carrinho::firstOrCreate(['usuario_id' => $usuarioId]);
         }
 
+        if (!$sessaoId) {
+            // Sem sessão identificável — gera uma sessão nova em vez de
+            // colidir com o carrinho de sessao_id nulo de outro visitante.
+            $sessaoId = (string) \Illuminate\Support\Str::uuid();
+        }
+
         return Carrinho::firstOrCreate(['sessao_id' => $sessaoId]);
     }
 
@@ -37,9 +43,17 @@ class GerenciarCarrinhoUseCase
             throw ValidationException::withMessages(['produto' => 'Estoque insuficiente.']);
         }
 
-        return $carrinho->itens()->updateOrCreate(
-            ['produto_id' => $produtoId, 'produto_variacao_id' => $variacao?->id],
-            ['preco_unitario' => $produto->preco]
-        )->increment('quantidade', $quantidade);
+        $item = $carrinho->itens()->firstOrNew([
+            'produto_id' => $produtoId,
+            'produto_variacao_id' => $variacao?->id,
+        ]);
+
+        $quantidadeAnterior = $item->exists ? (int) $item->quantidade : 0;
+
+        $item->preco_unitario = $produto->preco;
+        $item->quantidade = $quantidadeAnterior + $quantidade;
+        $item->save();
+
+        return $item;
     }
 }

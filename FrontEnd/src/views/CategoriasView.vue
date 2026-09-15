@@ -59,7 +59,6 @@
 
 <script setup lang="ts">
 import { useCategoriasViewModel } from '@/viewmodels/useCategoriasViewModel'
-// @ts-expect-error Vue SFC declaration check
 import CategoriaArvoreItem from '@/components/CategoriaArvoreItem.vue'
 
 const {

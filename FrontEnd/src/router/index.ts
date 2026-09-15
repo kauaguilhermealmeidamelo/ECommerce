@@ -61,6 +61,9 @@ const routes = [
             // ➔ MUDANÇA AQUI: Mantemos o LoginView.vue original apenas para os Clientes (com botão Google, Cadastro, etc)
             { path: 'entrar', name: 'login-cliente', component: () => import('@/views/LoginView.vue') },
 
+            // Callback do login social (Google) — recebe o token via query string
+            { path: 'auth/callback', name: 'auth-callback', component: () => import('@/views/AuthCallbackView.vue') },
+
             {
                 path: 'meus-pedidos',
                 name: 'meus-pedidos',

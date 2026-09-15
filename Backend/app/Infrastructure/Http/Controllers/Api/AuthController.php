@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
@@ -57,6 +58,17 @@ class AuthController extends Controller
         return response()->json(['token' => $token, 'usuario' => $usuario], 201);
     }
 
+    /**
+     * GET /api/auth/me (protegido — auth:sanctum)
+     * Retorna o usuário autenticado a partir do token. Usado pela tela
+     * de callback do login social (Google), que só recebe o token na URL
+     * e precisa buscar os dados do usuário pra popular a store no frontend.
+     */
+    public function me(Request $request): JsonResponse
+    {
+        return response()->json(['usuario' => $request->user()]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
@@ -98,7 +110,18 @@ class AuthController extends Controller
 
             return redirect()->away("{$frontendUrl}/auth/callback?token={$token}");
         } catch (\Exception $e) {
+            Log::error('Erro no callback do Google', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json(['error' => 'Falha na autenticação com o Google'], 500);
         }
+    }
+
+    // Alias de segurança caso alguma rota antiga chame em português
+    public function callbackGoogle()
+    {
+        return $this->handleGoogleCallback();
     }
 }

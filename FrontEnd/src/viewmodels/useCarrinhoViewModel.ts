@@ -1,36 +1,22 @@
 import { ref, computed, onMounted } from 'vue'
 import apiLoja from '@/services/apiLoja'
+import { useCarrinhoStore } from '@/stores/carrinho.store'
+import { CarrinhoData, ItemCarrinho } from './useCheckoutViewModel'
 
-export interface ItemCarrinho {
-  id: number | string
-  quantidade: number
-  preco_unitario: number
-  tamanho?: string
-  produto?: {
-    nome: string
-    imagem_url?: string
-    imagens?: Array<{ url?: string }>
-    [key: string]: any
-  }
-  [key: string]: any
-}
-
-export interface CarrinhoData {
-  itens: ItemCarrinho[]
-  [key: string]: any
-}
+// ...interfaces iguais...
 
 export function useCarrinhoViewModel() {
+  const carrinhoStore = useCarrinhoStore()
   const carrinho = ref<CarrinhoData | null>(null)
   const carregando = ref(true)
 
   const itens = computed<ItemCarrinho[]>(() => carrinho.value?.itens ?? [])
-  
-  const subtotal = computed<number>(() => 
+
+  const subtotal = computed<number>(() =>
     itens.value.reduce((soma, i) => soma + (i.quantidade * Number(i.preco_unitario ?? i.produto?.preco ?? 0)), 0)
   )
 
-  const formatarMoeda = (v: number) => 
+  const formatarMoeda = (v: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
 
   async function carregar() {
@@ -50,6 +36,7 @@ export function useCarrinhoViewModel() {
     try {
       const { data } = await apiLoja.patch(`/carrinho/itens/${item.id}`, { quantidade: novaQuantidade })
       carrinho.value = data.data
+      carrinhoStore.carregarQuantidade()
     } catch {
       // mantém o valor atual se a troca falhar (ex: estoque insuficiente)
     }
@@ -59,6 +46,7 @@ export function useCarrinhoViewModel() {
     try {
       const { data } = await apiLoja.delete(`/carrinho/itens/${item.id}`)
       carrinho.value = data.data
+      carrinhoStore.carregarQuantidade()
     } catch {
       // ignora se falhar
     }

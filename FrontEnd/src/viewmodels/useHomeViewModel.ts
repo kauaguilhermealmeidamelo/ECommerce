@@ -1,8 +1,13 @@
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { tema } from '@/theme/tema'
 import apiLoja from '@/services/apiLoja'
+import { useCarrinhoStore } from '@/stores/carrinho.store'
 
 export function useHomeViewModel() {
+  const router = useRouter()
+  const carrinho = useCarrinhoStore()
+
   const categorias = ref<any[]>([])
   const carregando = ref(true)
   const maisVendidos = ref<any[]>([])
@@ -42,8 +47,16 @@ export function useHomeViewModel() {
     }
   }
 
-  function adicionarAoCarrinho(produto: any) {
-    apiLoja.post('/carrinho/itens', { produto_id: produto.id, quantidade: 1 }).catch(() => {})
+  async function adicionarAoCarrinho(produto: any) {
+    // Produto com variação (tamanho etc.) precisa que o cliente escolha
+    // a opção antes de adicionar — sem isso a API sempre recusa (422).
+    // Em vez de falhar calado, leva pra página do produto.
+    if (produto.variacoes?.length) {
+      router.push({ name: 'produto', params: { id: produto.id } })
+      return
+    }
+
+    await carrinho.adicionarItem(produto.id, 1)
   }
 
   onMounted(() => {

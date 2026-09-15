@@ -1,4 +1,3 @@
-// src/services/produto.service.ts
 import api from './api'
 import type { Produto, NovoProdutoPayload } from '@/types/produto.types'
 
@@ -15,5 +14,5 @@ export const produtoService = {
 
   async remover(id: number): Promise<void> {
     await api.delete(`/admin/produtos/${id}`)
-  }
+  },
 }

@@ -31,7 +31,7 @@ async function remover() {
   try {
     await api.delete(`/admin/categorias/${props.categoria.id}`)
     emit('atualizar')
-  } catch (e) {
+  } catch (e: any) {
     alert(e.response?.data?.message || 'Não foi possível remover essa categoria.')
   }
 }

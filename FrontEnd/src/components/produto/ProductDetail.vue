@@ -36,13 +36,13 @@
           <span>{{ quantidade }}</span>
           <button @click="quantidade++">+</button>
         </div>
-        <button class="botao-comprar" :disabled="!podeComprar" @click="comprar">
-          Comprar
-        </button>
+        <button class="botao-comprar" :disabled="!podeComprar || comprando" @click="comprar">
+  {{ comprando ? 'Adicionando...' : 'Comprar' }}
+</button>
       </div>
 
       <!-- Meios de envio -->
-      <section class="frete">
+      <!-- <section class="frete">
         <h2>Meios de envio</h2>
         <div class="frete__busca">
           <input v-model="cep" placeholder="Seu CEP" maxlength="9" @keyup.enter="buscarFrete" />
@@ -50,11 +50,11 @@
         </div>
         <ul v-if="opcoesFrete.length" class="frete__opcoes">
           <li v-for="op in opcoesFrete" :key="op.metodo">
-            <span>{{ op.label }}</span>
+            <span>{{ op.metodo }}</span>
             <span>{{ op.valor === 0 ? 'Grátis' : op.valor ? formatarMoeda(op.valor) : 'Consultar' }}</span>
           </li>
         </ul>
-      </section>
+      </section> -->
     </div>
   </div>
 </template>
@@ -62,18 +62,22 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import apiLoja from '@/services/apiLoja'
+import { useCarrinhoStore } from '@/stores/carrinho.store'
 import ProdutoCarrossel from '@/components/ProdutoCarrossel.vue'
 
 const props = defineProps({ produto: { type: Object, required: true } })
+const carrinho = useCarrinhoStore()
 
-// Usa objeto de variação completo de forma agnóstica ao nicho
 const variacaoSelecionada = ref(props.produto.variacoes?.[0] ?? null)
 const quantidade = ref(1)
 const cep = ref('')
 const opcoesFrete = ref([])
 const buscandoFrete = ref(false)
+const comprando = ref(false)
 
-const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
+
+const formatarMoeda = (value: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
 
 const precoPix = computed(() => props.produto.preco * (1 - (props.produto.desconto_pix_percentual || 0) / 100))
 
@@ -85,17 +89,25 @@ const podeComprar = computed(() => {
 const emit = defineEmits(['adicionar-carrinho'])
 
 async function comprar() {
-  await apiLoja.post('/carrinho/itens', {
-    produto_id: props.produto.id,
-    tamanho: variacaoSelecionada.value?.nome ?? null,
-    quantidade: quantidade.value,
-  })
+  if (comprando.value) return
+  comprando.value = true
+  try {
+    const sucesso = await carrinho.adicionarItem(
+      props.produto.id,
+      quantidade.value,
+      variacaoSelecionada.value?.nome ?? null,
+    )
 
-  emit('adicionar-carrinho', {
-    produto: props.produto,
-    variacao: variacaoSelecionada.value,
-    quantidade: quantidade.value
-  })
+    if (sucesso) {
+      emit('adicionar-carrinho', {
+        produto: props.produto,
+        variacao: variacaoSelecionada.value,
+        quantidade: quantidade.value,
+      })
+    }
+  } finally {
+    comprando.value = false
+  }
 }
 
 async function buscarFrete() {

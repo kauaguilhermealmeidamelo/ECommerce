@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import { useProductDetailViewModel } from '@/viewmodels/useProductDetailViewModel'
-// @ts-expect-error Vue SFC module typing is provided by the build toolchain.
 import ProductDetail from '@/components/produto/ProductDetail.vue'
 
 

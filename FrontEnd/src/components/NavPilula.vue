@@ -20,9 +20,7 @@ interface NavItem {
   contador?: number | string
 }
 
-defineProps < {
-  itens: NavItem[]
-} > ()
+defineProps<{ itens: NavItem[] }>()
 
 const route = useRoute()
 const rotaAtiva = computed(() => route.name)

@@ -60,10 +60,20 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 
-defineProps({
-    titulo: { type: String, default: '' },
-    subtitulo: { type: String, default: '' },
-    notificacoes: { type: Array, default: () => [] },
+interface Notificacao {
+  texto: string
+  tempo: string
+  cor?: string
+}
+
+withDefaults(defineProps<{
+  titulo?: string
+  subtitulo?: string
+  notificacoes?: Notificacao[]
+}>(), {
+  titulo: '',
+  subtitulo: '',
+  notificacoes: () => [],
 })
 
 const router = useRouter()
@@ -72,26 +82,26 @@ const notifAberta = ref(false)
 const menuAberto = ref(false)
 
 function sair() {
-    menuAberto.value = false
-    auth.logout()
-    router.push({ name: 'login' })
+  menuAberto.value = false
+  auth.logout()
+  router.push({ name: 'login' })
 }
 
 const nomeUsuario = computed(() => auth.usuario?.name?.split(' ')[0] ?? 'Você')
 const iniciaisUsuario = computed(() => {
-    const nome = auth.usuario?.name ?? '?'
-    return nome.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase()
+  const nome = auth.usuario?.name ?? '?'
+  return nome.trim().split(/\s+/).slice(0, 2).map((p: string) => p[0]).join('').toUpperCase()
 })
 
 const nomeLoja = ref('Loja')
 
 async function carregarNomeLoja() {
-    try {
-        const { data } = await api.get('/admin/loja')
-        if (data.data?.nome) nomeLoja.value = data.data.nome
-    } catch (e) {
-        // mantém o padrão "Loja"
-    }
+  try {
+    const { data } = await api.get('/admin/loja')
+    if (data.data?.nome) nomeLoja.value = data.data.nome
+  } catch (e) {
+    // mantém o padrão "Loja"
+  }
 }
 
 const nomeExibido = computed(() => (nomeLoja.value.split(/\s+/)[0] || 'Loja').toUpperCase())

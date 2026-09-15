@@ -15,14 +15,18 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-defineProps({
-  itens: { type: Array, required: true },
-})
+interface NavItem {
+  rota: string
+  label: string
+  icone: string
+  contador?: number | string | null
+}
+
+defineProps<{ itens: NavItem[] }>()
 
 const route = useRoute()
 const rotaAtiva = computed(() => route.name)
 </script>
-
 <style scoped>
 .pilula {
   display: none;

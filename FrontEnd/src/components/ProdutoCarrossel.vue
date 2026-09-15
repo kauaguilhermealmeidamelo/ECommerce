@@ -16,30 +16,34 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const props = defineProps({
-  imagens: { type: Array, default: () => [] },
-  imagemUrlFallback: { type: String, default: null },
-  alt: { type: String, default: '' },
-})
+interface Imagem {
+  id?: number | string
+  url: string
+}
 
-// Produtos antigos, criados antes dessa feature, caem pro imagem_url
-// singular — vira um carrossel de 1 imagem só, sem quebrar nada.
-const imagensExibidas = computed(() => {
+const props = defineProps<{
+  imagens?: Imagem[]
+  imagemUrlFallback?: string | null
+  alt?: string
+}>()
+
+const imagensExibidas = computed<Imagem[]>(() => {
   if (props.imagens?.length) return props.imagens
   if (props.imagemUrlFallback) return [{ url: props.imagemUrlFallback }]
   return []
 })
 
-const viewport = ref(null)
+const viewport = ref<HTMLDivElement | null>(null)
 const indiceAtual = ref(0)
 
-function irPara(indice) {
+function irPara(indice: number) {
   const largura = viewport.value?.clientWidth ?? 0
   viewport.value?.scrollTo({ left: largura * indice, behavior: 'smooth' })
 }
 
 function atualizarIndice() {
   const largura = viewport.value?.clientWidth ?? 1
+  if (!viewport.value) return
   indiceAtual.value = Math.round(viewport.value.scrollLeft / largura)
 }
 </script>

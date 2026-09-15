@@ -2,7 +2,6 @@
   <nav class="navbar navbar--mobile">
     <router-link v-for="item in itens" :key="item.rota" :to="{ name: item.rota }" class="navbar__item"
       :class="{ 'navbar__item--ativo': rotaAtiva === item.rota }">
-      <!-- Trocado o span pelo v-icon do Vuetify -->
       <v-icon class="navbar__icone" :icon="item.icone"></v-icon>
 
       <span class="navbar__label">{{ item.label }}</span>
@@ -15,9 +14,14 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-defineProps({
-  itens: { type: Array, required: true },
-})
+interface NavItem {
+  rota: string
+  label: string
+  icone: string
+  contador?: number | string | null
+}
+
+defineProps<{ itens: NavItem[] }>()
 
 const route = useRoute()
 const rotaAtiva = computed(() => route.name)
@@ -45,7 +49,6 @@ const rotaAtiva = computed(() => route.name)
   position: relative;
   color: var(--ink-faint);
   text-decoration: none;
-  /* Garante que o link não fique sublinhado */
 }
 
 .navbar__item--ativo {

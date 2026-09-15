@@ -11,24 +11,27 @@
         <path d="m21 21-4.3-4.3" />
       </svg>
       <input v-model="busca" type="text" placeholder="Buscar produtos..." @keyup.enter="buscar" />
-      <button v-if="busca" class="topo__limpar-busca" @click="busca = ''" aria-label="Limpar busca"><v-icon icon="mdi-close" size="small" /></button>
+      <button v-if="busca" class="topo__limpar-busca" @click="busca = ''" aria-label="Limpar busca"><v-icon
+          icon="mdi-close" size="small" /></button>
     </div>
 
     <div class="topo__acoes">
       <router-link :to="{ name: 'carrinho' }" class="topo__icone-botao" aria-label="Carrinho">
         <v-icon icon="mdi-cart-outline" />
-        <span v-if="quantidadeCarrinho > 0" class="topo__contador">{{ quantidadeCarrinho }}</span>
+        <span v-if="carrinho.quantidadeItens > 0" class="topo__contador">{{ carrinho.quantidadeItens }}</span>
       </router-link>
 
       <div class="topo__conta">
         <button class="topo__usuario" @click="menuAberto = !menuAberto">
-          <span class="avatar"><span v-if="auth.autenticado">{{ iniciais }}</span><v-icon v-else icon="mdi-account-outline" size="small" /></span>
+          <span class="avatar"><span v-if="auth.autenticado">{{ iniciais }}</span><v-icon v-else
+              icon="mdi-account-outline" size="small" /></span>
           <span class="topo__usuario-nome">{{ auth.autenticado ? auth.primeiroNome : 'Entrar' }}</span>
         </button>
 
         <div v-if="menuAberto" class="topo__dropdown" @click="menuAberto = false">
           <template v-if="auth.autenticado">
-            <router-link :to="{ name: 'meus-pedidos' }" class="topo__dropdown-item-link"><v-icon icon="mdi-package-variant-closed" size="small" /> Meus pedidos</router-link>
+            <router-link :to="{ name: 'meus-pedidos' }" class="topo__dropdown-item-link"><v-icon
+                icon="mdi-package-variant-closed" size="small" /> Meus pedidos</router-link>
             <button class="topo__dropdown-sair" @click="sair"><v-icon icon="mdi-logout" size="small" /> Sair</button>
           </template>
           <template v-else>
@@ -46,14 +49,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { tema } from '@/theme/tema'
 import { useClienteAuthStore } from '@/stores/clienteAuth'
-import apiLoja from '@/services/apiLoja'
+import { useCarrinhoStore } from '@/stores/carrinho.store'
 
 const router = useRouter()
 const auth = useClienteAuthStore()
+const carrinho = useCarrinhoStore()
 
 const busca = ref('')
 const menuAberto = ref(false)
-const quantidadeCarrinho = ref(0)
 
 const iniciais = computed(() => {
   const nome = auth.usuario?.name ?? '?'
@@ -70,18 +73,7 @@ function sair() {
   router.push({ name: 'home' })
 }
 
-async function carregarQuantidadeCarrinho() {
-  try {
-    const { data } = await apiLoja.get('/carrinho')
-    // Tipagem explícita no reduce para evitar erros de tipo implícito do TS
-    quantidadeCarrinho.value = (data.data?.itens ?? []).reduce((soma: number, item: any) => soma + Number(item.quantidade), 0)
-  } catch (e) {
-    quantidadeCarrinho.value = 0
-  }
-}
-
-defineExpose({ carregarQuantidadeCarrinho })
-onMounted(carregarQuantidadeCarrinho)
+onMounted(() => carrinho.carregarQuantidade())
 </script>
 
 <style scoped>

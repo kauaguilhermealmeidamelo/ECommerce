@@ -1,6 +1,7 @@
 import { ref, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import apiLoja from '@/services/apiLoja'
+import { useCarrinhoStore } from '@/stores/carrinho.store'
 
 export interface CategoriaFolha {
   id: number | string
@@ -18,6 +19,8 @@ export interface SecaoCategoria {
 
 export function useCatalogoViewModel() {
   const route = useRoute()
+  const router = useRouter()
+  const carrinho = useCarrinhoStore()
 
   const categoriasFolha = ref<CategoriaFolha[]>([])
   const carregandoCategorias = ref(true)
@@ -58,7 +61,6 @@ export function useCatalogoViewModel() {
         carregando: true,
       }))
 
-      // Prévia de 8 produtos por seção, em paralelo.
       await Promise.all(
         secoesPorCategoria.value.map(async (secao) => {
           try {
@@ -108,8 +110,16 @@ export function useCatalogoViewModel() {
     busca.value = ''
   }
 
-  function adicionarAoCarrinho(produto: any) {
-    apiLoja.post('/carrinho/itens', { produto_id: produto.id, quantidade: 1 }).catch(() => {})
+  // Produtos com variação (tamanho) não têm como escolher o tamanho
+  // direto no card — leva pra página do produto. Sem variação, adiciona
+  // direto via store (que já cuida de toast de sucesso/erro).
+  async function adicionarAoCarrinho(produto: any) {
+    if (produto.variacoes?.length) {
+      router.push({ name: 'produto', params: { id: produto.id } })
+      return
+    }
+
+    await carrinho.adicionarItem(produto.id, 1)
   }
 
   watch(categoriaSelecionada, (id) => {
